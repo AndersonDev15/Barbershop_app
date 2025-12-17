@@ -1,9 +1,10 @@
+
 services:
   barbershop_app:
     build: project
     container_name: barbershop_app
     ports:
-      - "8080:8080"
+      - "8081:8080"
     environment:
       DB_URL: jdbc:mysql://barber_db:3306/barber?createDatabaseIfNotExist=true&serverTimezone=UTC
       DB_USERNAME: root
@@ -13,7 +14,7 @@ services:
 
       JWT_SECRET: mi_super_clave_segura_para_firmar_tokens_2025
 
-      MAIL_HOST: smtp.mailtrap.io
+      MAIL_HOST: smtp.gmail.com
       MAIL_PORT: 587
       MAIL_USERNAME: andersondiazvides05@gmail.com
       MAIL_PASSWORD: shlkxngaztikdghz
@@ -50,3 +51,5 @@ services:
 
 volumes:
   mysql_data:
+
+
