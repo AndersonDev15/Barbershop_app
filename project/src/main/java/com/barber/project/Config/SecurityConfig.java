@@ -1,6 +1,7 @@
 package com.barber.project.Config;
 
 import com.barber.project.Repository.UserRepository;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
@@ -83,20 +85,24 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(UserRepository userRepository){
-        byte [] KeyBytes = JwtSecret.getBytes(StandardCharsets.UTF_8);
-        SecretKeySpec secretKey = new SecretKeySpec(KeyBytes,"HmacSHA256");
+    public JwtDecoder jwtDecoder(UserRepository userRepository) {
 
-        NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey).build();
+        SecretKey key = Keys.hmacShaKeyFor(
+                JwtSecret.getBytes(StandardCharsets.UTF_8)
+        );
 
-        //validator
-        PasswordChangedValidator validator = new PasswordChangedValidator(userRepository);
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(key).build();
+
+        PasswordChangedValidator validator =
+                new PasswordChangedValidator(userRepository);
+
         decoder.setJwtValidator(
                 new DelegatingOAuth2TokenValidator<>(
                         JwtValidators.createDefault(),
                         validator
                 )
         );
+
         return decoder;
     }
 
