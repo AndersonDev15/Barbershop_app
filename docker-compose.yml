@@ -1,0 +1,52 @@
+services:
+  barbershop_app:
+    build: project
+    container_name: barbershop_app
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://barber_db:3306/barber?createDatabaseIfNotExist=true&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: Anderson
+
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      JWT_SECRET: mi_super_clave_segura_para_firmar_tokens_2025
+
+      MAIL_HOST: smtp.mailtrap.io
+      MAIL_PORT: 587
+      MAIL_USERNAME: andersondiazvides05@gmail.com
+      MAIL_PASSWORD: shlkxngaztikdghz
+
+      APP_EMAIL_FROM_NAME: "Barbershop App"
+      APP_EMAIL_FROM: "noreply@barbershop.com"
+      APP_EMAIL_COMPANY: "Barbershop"
+      APP_EMAIL_SUPPORT: "support@barbershop.com"
+
+      CLOUDINARY_CLOUD_NAME: dorhzs8il
+      CLOUDINARY_API_KEY: 968213555265497
+      CLOUDINARY_API_SECRET: juVOJcRMB76yd33Cyganvm510jw
+
+    depends_on:
+      barber_db:
+        condition: service_healthy
+    restart: always
+
+  barber_db:
+    image: mysql:8.0.33
+    container_name: barber_db
+    environment:
+      MYSQL_ROOT_PASSWORD: Anderson
+      MYSQL_DATABASE: barber
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+    restart: always
+
+volumes:
+  mysql_data:
