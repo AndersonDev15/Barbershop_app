@@ -48,7 +48,7 @@ public class Reservation {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "reservation_items",  // Tu tabla existente
+            name = "reservation_items",
             joinColumns = @JoinColumn(name = "reservation_id"),
             inverseJoinColumns = @JoinColumn(name = "subcategory_id")
     )
