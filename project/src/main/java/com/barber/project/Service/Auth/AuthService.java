@@ -24,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -131,7 +132,9 @@ public class AuthService {
         LocalDateTime passwordChanged = user.getLastPasswordChange()
                 .truncatedTo(ChronoUnit.SECONDS);
 
-        Key key = Keys.hmacShaKeyFor(JwtSecret.getBytes());
+        Key key = Keys.hmacShaKeyFor(
+                JwtSecret.getBytes(StandardCharsets.UTF_8)
+        );
         return Jwts.builder()
                 .setSubject(email)
                 .claim("roles", List.of(user.getUserType().name()))

@@ -96,12 +96,8 @@ public class SecurityConfig {
         PasswordChangedValidator validator =
                 new PasswordChangedValidator(userRepository);
 
-        decoder.setJwtValidator(
-                new DelegatingOAuth2TokenValidator<>(
-                        JwtValidators.createDefault(),
-                        validator
-                )
-        );
+        decoder.setJwtValidator(validator);
+
 
         return decoder;
     }
