@@ -1,3 +1,6 @@
+# Ignorar archivo local de variables de entorno
+.env
+
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
