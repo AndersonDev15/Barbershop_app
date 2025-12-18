@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class BarberRequest {
     @Schema(description = "Número de documento", example = "12345678")
     private String documentNumber;
-    @Schema(description = "Comisión del barbero", example = "30.5")
+    @Schema(description = "Comisión del barbero", example = "0.30")
     private BigDecimal commission;
 
 }

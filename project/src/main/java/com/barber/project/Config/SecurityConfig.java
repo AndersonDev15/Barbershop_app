@@ -20,9 +20,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtValidators;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -31,6 +30,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 @Configuration
 @EnableWebSecurity
@@ -93,14 +93,22 @@ public class SecurityConfig {
 
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(key).build();
 
-        PasswordChangedValidator validator =
+        PasswordChangedValidator passwordValidator =
                 new PasswordChangedValidator(userRepository);
 
-        decoder.setJwtValidator(validator);
+        OAuth2TokenValidator<Jwt> timestampValidator =
+                new JwtTimestampValidator(Duration.ofMinutes(2)); // ⬅ tolerancia
 
+        decoder.setJwtValidator(
+                new DelegatingOAuth2TokenValidator<>(
+                        timestampValidator,
+                        passwordValidator
+                )
+        );
 
         return decoder;
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder(){

@@ -27,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
@@ -124,7 +126,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()-> new ResourceNotFoundException("Email no encontrado"));
 
-        // 1. Asegurar que lastPasswordChange no sea null
+        // Asegurar que lastPasswordChange no sea null
         if (user.getLastPasswordChange() == null) {
             user.setLastPasswordChange(LocalDateTime.now());
             userRepository.save(user);
@@ -138,10 +140,17 @@ public class AuthService {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("roles", List.of(user.getUserType().name()))
-                .claim("passwordChangedAt", passwordChanged.toString())
+                .claim(
+                        "passwordChangedAt",
+                        passwordChanged
+                                .atZone(ZoneOffset.UTC)
+                                .toInstant()
+                                .getEpochSecond()
+                )
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+
     }
 }

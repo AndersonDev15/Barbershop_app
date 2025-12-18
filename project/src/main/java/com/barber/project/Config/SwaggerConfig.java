@@ -71,39 +71,7 @@ public class SwaggerConfig {
                                 .description("Gestión del perfil de la barbería"),
 
 
-                        // --- CLIENTE ---
-
-                        new Tag()
-                                .name("Cliente - Búsqueda")
-                                .description("Búsqueda de barberías, barberos y servicios disponibles"),
-                        new Tag()
-                                .name("Cliente - Disponibilidad")
-                                .description("Consulta de disponibilidad para agendar citas"),
-                        new Tag()
-                                .name("Cliente - Reservas")
-                                .description("Creación, visualización y cancelación de reservas"),
-                        new Tag()
-                                .name("Cliente - Transacciones")
-                                .description("Creación y consulta de transacciones realizadas por el cliente"),
-
-
-                       // ---  BARBERO ---
-
-                        new Tag()
-                                .name("Barbero - Disponibilidad y Descansos")
-                                .description("Endpoints para consultar disponibilidad del barbero y gestionar descansos"),
-                        new Tag()
-                                .name("Barbero - Reservas")
-                                .description("Gestión de reservas asignadas al barbero"),
-                        new Tag()
-                                .name("Barbero - Transacciones")
-                                .description("Confirmación y cierre de transacciones"),
-                        new Tag()
-                                .name("Barbero - Dashboard")
-                                .description("Dashboard de ingresos y estadísticas del barbero"),
-
-
-                       // --- BARBERÍA ---
+                        // --- BARBERÍA ---
 
                         new Tag()
                                 .name("Barbería - Gestión de Barberos")
@@ -119,7 +87,45 @@ public class SwaggerConfig {
                                 .description("Gestión de categorías y subcategorías de servicios"),
                         new Tag()
                                 .name("Barbería - Dashboard")
-                                .description("Dashboard de ingresos y métricas de la barbería")
+                                .description("Dashboard de ingresos y métricas de la barbería"),
+
+
+                        // ---  BARBERO ---
+
+                        new Tag()
+                                .name("Barbero - Disponibilidad y Descansos")
+                                .description("Endpoints para consultar disponibilidad del barbero y gestionar descansos"),
+                        new Tag()
+                                .name("Barbero - Reservas")
+                                .description("Gestión de reservas asignadas al barbero"),
+                        new Tag()
+                                .name("Barbero - Transacciones")
+                                .description("Confirmación y cierre de transacciones"),
+                        new Tag()
+                                .name("Barbero - Dashboard")
+                                .description("Dashboard de ingresos y estadísticas del barbero"),
+
+
+                        // --- CLIENTE ---
+
+                        new Tag()
+                                .name("Cliente - Búsqueda")
+                                .description("Búsqueda de barberías, barberos y servicios disponibles"),
+                        new Tag()
+                                .name("Cliente - Disponibilidad")
+                                .description("Consulta de disponibilidad para agendar citas"),
+                        new Tag()
+                                .name("Cliente - Reservas")
+                                .description("Creación, visualización y cancelación de reservas"),
+                        new Tag()
+                                .name("Cliente - Transacciones")
+                                .description("Creación y consulta de transacciones realizadas por el cliente")
+
+
+
+
+
+
                 ));
     }
 }
