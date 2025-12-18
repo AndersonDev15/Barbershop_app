@@ -9,11 +9,20 @@ import com.barber.project.Entity.*;
 import com.barber.project.Entity.enums.PaymentMethodStatus;
 import com.barber.project.Entity.enums.ReservationStatus;
 import com.barber.project.Dto.Response.Reservation.ReservationEmailData;
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,26 +31,45 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 @RequiredArgsConstructor
 public class EmailService {
-    private final JavaMailSender mailSender;
+    @Value("${sendgrid.api-key}")
+    private String apiKey;
 
-    @Value("${app.email.from}")
+    @Value("${sendgrid.from}")
     private String fromEmail;
 
-    @Value("${app.email.from-name}")
-    private String fromName;
+    private final Logger log = LoggerFactory.getLogger(EmailService.class);
 
-    @Value("${app.email.company-name}")
-    private String companyName;
+    @Async
     public void sendEmail(String to, String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("\"" + fromName + "\" <" + fromEmail + ">");
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(body);
-        mailSender.send(message);
+        try {
+            Email from = new Email(fromEmail);
+            Email toEmail = new Email(to);
+            Content content = new Content("text/plain", body);
+            Mail mail = new Mail(from, subject, toEmail, content);
+
+            SendGrid sg = new SendGrid(apiKey);
+            Request request = new Request();
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+
+            Response response = sg.api(request);
+
+            if (response.getStatusCode() >= 400) {
+                log.error("Error enviando correo a {}: {}", to, response.getBody());
+            } else {
+                log.info("Correo enviado a {}", to);
+            }
+
+        } catch (Exception e) {
+            log.error("Excepción al enviar correo a {}: {}", to, e.getMessage(), e);
+        }
     }
 
     // ---- RESERVACION ---
