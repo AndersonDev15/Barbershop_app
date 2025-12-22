@@ -109,8 +109,6 @@ CLIENTE, BARBERO o BARBERIA.
 
 ```
 
-[Ver endpoints Auth](AUTH_GUIDE.md)
-
 ---
 
 ### Iniciar sesión
