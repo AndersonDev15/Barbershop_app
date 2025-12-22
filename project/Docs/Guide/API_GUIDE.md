@@ -8,7 +8,7 @@
 Endpoints relacionados con registro, login y gestión de credenciales.
 
 Ver Guia:
-[AUTH_API.md](AUTH_GUIDE.md)
+[Autenticación](AUTH_GUIDE.md)
 
 ---
 
@@ -16,7 +16,7 @@ Ver Guia:
 Gestión de servicios, subcategorías, barberos, dashboard e ingresos de la barbería.
 
 Ver Guia:
-[BARBERSHOP_API.md](BARBERSHOP_GUIDE.md)
+[Barberia](BARBERSHOP_GUIDE.md)
 
 ---
 
@@ -24,7 +24,7 @@ Ver Guia:
 Perfil del barbero, disponibilidad, reservas, transacciones y dashboard personal.
 
 Ver Guia:
-[BARBER_API.md](BARBER_GUIDE.md)
+[Barbero](BARBER_GUIDE.md)
 
 ---
 
@@ -32,7 +32,7 @@ Ver Guia:
 Gestión de perfil, reservas y pagos del cliente.
 
 Ver Guia:
-[CLIENT_API.md](CLIENT_GUIDE.md)
+[Cliente](CLIENT_GUIDE.md)
 
 ---
 

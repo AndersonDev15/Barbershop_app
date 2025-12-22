@@ -1,3 +1,6 @@
+← [Volver al API Guide General](API_GUIDE.md)
+
+
 ##  Auth
 
 ---
@@ -187,5 +190,165 @@ El token debe enviarse en el header Authorization
 para acceder a endpoints protegidos:
 
 `Authorization: Bearer <token>`
+
+---
+
+### Validar contraseña actual y enviar código de verificación
+`POST /api/password/validate`
+
+Valida que la contraseña actual del usuario autenticado sea correcta y, si es válida, envía un código de verificación al correo para permitir el cambio de contraseña.
+#### Request body
+```json
+{
+  "currentPassword": "MiClaveActual123"
+}
+
+```
+
+#### Ejemplo de uso (Curl)
+```bash
+curl -X POST http://localhost:8080/api/password/validate \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {token}" \
+  -d '{
+    "currentPassword": "MiClaveActual123"
+  }'
+
+```
+
+#### Respuesta exitosa (200 OK)
+```json
+"Código enviado al correo"
+```
+
+#### Errores
+**403 - Acceso negado**
+```json
+{
+  "status": 403,
+  "error": "Forbidden",
+  "message": "La contraseña actual es incorrecta",
+  "path": "/api/password/validate",
+  "errors": [
+    {
+      "error": "BUSINESS_MISTAKE",
+      "message": "Error de lógica de negocio",
+      "details": [
+        "La contraseña actual es incorrecta"
+      ]
+    }
+  ],
+  "timestamp": "2025-12-21T14:11:39.4797333"
+}
+
+```
+
+---
+
+### Validar código enviado al correo
+`POST /api/password/validate-code`
+
+Verifica que el código ingresado por el usuario coincide con el código enviado previamente al correo electrónico.
+#### Request body
+```json
+{
+  "code": "482915"
+}
+
+```
+
+#### Ejemplo de uso (Curl)
+```bash
+curl -X POST http://localhost:8080/api/password/validate-code \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {token}" \
+  -d '{
+    "code": "482915"
+  }'
+
+```
+
+#### Respuesta exitosa (200 OK)
+```json
+"Código válido"
+
+```
+
+#### Errores
+**404 - Datos invalidos**
+```json
+{
+  "timestamp": "2025-12-21T19:00:33.1072416",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Código inválido",
+  "path": "/api/password/validate-code",
+  "errors": [
+    {
+      "error": "BUSINESS_MISTAKE",
+      "message": "Error de logica de negocio",
+      "details": [
+        "Código inválido"
+      ]
+    }
+  ]
+}
+```
+
+---
+
+### Cambiar contraseña usando código de verificación
+`PUT /api/password/reset`
+
+Permite al usuario cambiar su contraseña utilizando el código de verificación enviado previamente al correo.
+#### Request body
+```json
+{
+  "code": "482915",
+  "newPassword": "NewPassword123*",
+  "confirmPassword": "NewPassword123*"
+}
+
+```
+
+#### Ejemplo de uso (Curl)
+```bash
+curl -X PUT http://localhost:8080/api/password/reset \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {token}" \
+  -d '{
+    "code": "482915",
+    "newPassword": "NewPassword123*",
+    "confirmPassword": "NewPassword123*"
+  }'
+
+```
+
+#### Respuesta exitosa (200 OK)
+```json
+"Contraseña actualizada correctamente"
+
+```
+
+#### Errores
+**404 - Datos invalidos**
+```json
+{
+  "timestamp": "2025-12-21T19:02:07.8836932",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Las contraseñas no coinciden",
+  "path": "/api/password/reset",
+  "errors": [
+    {
+      "error": "BUSINESS_MISTAKE",
+      "message": "Error de logica de negocio",
+      "details": [
+        "Las contraseñas no coinciden"
+      ]
+    }
+  ]
+}
+```
 
 ---

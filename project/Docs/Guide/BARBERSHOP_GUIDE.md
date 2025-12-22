@@ -1,4 +1,7 @@
-## Modulo de barberia
+← [Volver al API Guide General](API_GUIDE.md)
+
+
+## Barberia
 
 ---
 
