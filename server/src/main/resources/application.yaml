@@ -1,0 +1,81 @@
+server:
+  port: 9000
+
+app:
+  base-url: ${APP_BASE_URL:http://127.0.0.1:9000}
+  redirect-uri: ${APP_REDIRECT_URI:http://127.0.0.1:8080/login/oauth2/code/barberia-client}
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/auth
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  sql:
+    init:
+      mode: NEVER
+
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:none}
+    show-sql: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
+
+  application:
+    name: authServer
+
+# APIs internas
+internal:
+  api:
+    keys:
+      barberia-api: ${BARBERIA_API_KEY:dev-barberia-key-12345}
+
+# Business API
+business:
+  api:
+    url: ${BUSINESS_API_URL:http://127.0.0.1:8080}
+    api-key: ${AUTH_SERVER_API_KEY:dev-auth-server-key-67890}
+
+# SendGrid
+sendgrid:
+  api-key: ${SENDGRID_API_KEY}
+  from-email: ${SENDGRID_FROM_EMAIL}
+  from-name: Barbería App
+
+# Feign
+feign:
+  client:
+    config:
+      business-api:
+        connectTimeout: 5000
+        readTimeout: 10000
+        loggerLevel: basic
+
+# Job de reconciliación
+reconciliation:
+  enabled: true
+  batch-size: 100
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG

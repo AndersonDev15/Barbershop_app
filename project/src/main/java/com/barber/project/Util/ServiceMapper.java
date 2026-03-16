@@ -1,7 +1,7 @@
 package com.barber.project.Util;
 
-import com.barber.project.Dto.Response.Reservation.ServiceInfo;
-import com.barber.project.Entity.SubCategory;
+import com.barber.project.reservation.dto.response.ServiceInfo;
+import com.barber.project.barbershop.entity.SubCategory;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;

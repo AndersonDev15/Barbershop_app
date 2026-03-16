@@ -1,5 +1,7 @@
 # Ignorar archivo local de variables de entorno
 .env
+server/.env
+project/.env
 
 HELP.md
 target/
@@ -34,3 +36,5 @@ build/
 
 ### VS Code ###
 .vscode/
+
+

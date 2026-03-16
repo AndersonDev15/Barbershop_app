@@ -1,49 +1,58 @@
-version: "3.8"
-
 services:
-  barbershop_app:
-    build: project
-    container_name: barbershop_app
-    ports:
-      - "8081:8080"
-    environment:
-      DB_URL: ${DB_URL}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-
-      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
-      JWT_SECRET: ${JWT_SECRET}
-
-      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
-      SENDGRID_FROM_EMAIL: ${SENDGRID_FROM_EMAIL}
-
-     
-
-      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
-      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
-      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
-
-    depends_on:
-      barber_db:
-        condition: service_healthy
-    restart: always
-
-  barber_db:
-    image: mysql:8.0.33
-    container_name: barber_db
+  mysql:
+    image: mysql:8.0
+    container_name: barbershop-mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
       - "3307:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 10s
-      retries: 10
-    restart: always
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth-server:
+    build: ./server
+    container_name: barbershop-auth
+    ports:
+      - "9000:9000"
+    env_file:
+      - ./server/.env
+    environment:
+      APP_BASE_URL: ${APP_BASE_URL}
+      APP_REDIRECT_URI: ${APP_REDIRECT_URI}
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/auth
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      BUSINESS_API_URL: http://business-api:8080
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  business-api:
+    build: ./project
+    container_name: barbershop-business
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./project/.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/barber
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: ${JWK_SET_URI}
+      AUTH_SERVER_URL: http://auth-server:9000
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+    depends_on:
+      mysql:
+        condition: service_healthy
+      auth-server:
+        condition: service_started
 
 volumes:
-  mysql_data:
-
+  mysql-data:
