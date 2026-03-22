@@ -1,5 +1,6 @@
 # Ignorar archivo local de variables de entorno
 .env
+init.sql
 server/.env
 project/.env
 
