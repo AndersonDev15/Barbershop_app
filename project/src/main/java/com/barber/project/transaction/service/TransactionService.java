@@ -6,8 +6,9 @@ import com.barber.project.barber.entity.Barber;
 import com.barber.project.barbershop.service.SubCategoryService;
 import com.barber.project.reservation.entity.Reservation;
 import com.barber.project.reservation.entity.ReservationItem;
+import com.barber.project.reservation.service.ReservationQueryService;
 import com.barber.project.reservation.service.ReservationService;
-import com.barber.project.transaction.dto.request.TransactionRequest;
+import com.barber.project.transaction.dto.request.PaymentRequest;
 import com.barber.project.reservation.dto.response.ServiceInfo;
 import com.barber.project.transaction.dto.internal.TransactionEmailData;
 import com.barber.project.transaction.dto.response.TransactionResponse;
@@ -24,9 +25,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import com.barber.project.notification.service.NotificationService;
+import com.barber.project.notification.enums.NotificationType;
 
 @Service
 @RequiredArgsConstructor
@@ -36,30 +41,18 @@ public class TransactionService {
     private final BarberShopIncomeService incomeService;
     private final EmailService emailService;
     private final BarberService barberService;
-    private final ReservationService reservationService;
+    private final ReservationQueryService reservationQueryService;
     private final SubCategoryService subCategoryService;
+    private final NotificationService notificationService;
 
     @Transactional
-    public TransactionResponse createTransaction(TransactionRequest request, String userUuid){
-        Reservation reservation = reservationService.getReservationById(request.reservationId());
+    public TransactionResponse payReservation(Long reservationId, PaymentRequest request, String userUuid){
 
+        Reservation reservation = reservationQueryService.getById(reservationId);
 
-        //validar estado
-        if(!reservation.getStatus().equals(ReservationStatus.COMPLETADA)){
-            throw new ValidationException("La reserva debe estar completada");
+        if (reservation.getStatus() == ReservationStatus.CANCELADA) {
+            throw new ValidationException("No se puede pagar una reserva cancelada");
         }
-        //sin transaccion previa
-        if(reservation.getTransaction()!=null){
-            throw new ValidationException("La reserva ya tiene una transaccion");
-        }
-
-        //barbero
-        Barber barber = reservation.getBarber();
-
-        if(request.totalAmount().compareTo(reservation.getFinalPrice()) <0 ){
-            throw new ValidationException("El monto pagado no puede ser menor al precio del servicio");
-        }
-
 
         BigDecimal tip = request.tip() != null ? request.tip() : BigDecimal.ZERO;
 
@@ -67,24 +60,83 @@ public class TransactionService {
             throw new ValidationException("La propina no puede ser negativa");
         }
 
-        //precio
-        BigDecimal commission = reservation.getFinalPrice().multiply(barber.getCommission());
+        Transaction transaction = transactionRepository
+                .findByReservationId(reservationId)
+                .orElseThrow(() -> new ValidationException("No existe transacción para esta reserva"));
+
+        // ya pagada
+        if (transaction.getPaymentStatus() == PaymentStatus.PAGADO) {
+            throw new ValidationException("La reserva ya está pagada");
+        }
+        if (transaction.getPaymentStatus() == PaymentStatus.EN_PROCESO) {
+            throw new ValidationException("El pago ya fue registrado y está pendiente de confirmación por el barbero");
+        }
+
+        Barber barber = reservation.getBarber();
+        BigDecimal total = reservation.getFinalPrice();
+
+        BigDecimal commission = total.multiply(barber.getCommission());
         BigDecimal barberAmount = commission.add(tip);
 
+        // SOLO actualiza datos, NO marca como pagado
+        transaction.setPaymentMethod(request.paymentMethod());
+        transaction.setPaymentDate(LocalDateTime.now());
+        transaction.setPaymentStatus(PaymentStatus.EN_PROCESO);
+        transaction.setTip(tip);
+        transaction.setNotes(request.notes());
+        transaction.setBarberAmount(barberAmount);
+        transaction.setBarberCommission(commission);
 
-        //Crear Transaccion
-        Transaction transaction = buildTransaction(reservation, barber, request, commission, barberAmount, tip);
         Transaction saved = transactionRepository.save(transaction);
-        return mapToResponse(saved);
 
+        return mapToResponse(saved);
     }
 
     @Transactional
-    public TransactionResponse completeTransaction(Long TransactionId){
-        Transaction transaction = transactionRepository.findById(TransactionId)
-                .orElseThrow(()->new ResourceNotFoundException("Transaccion no encontrada"));
+    public void createPendingTransactionFromReservation(Reservation reservation) {
 
-        if(!transaction.getPaymentStatus().equals(PaymentStatus.PENDIENTE)){
+        Barber barber = reservation.getBarber();
+
+        BigDecimal total = reservation.getFinalPrice();
+        BigDecimal tip = BigDecimal.ZERO;
+
+        BigDecimal commission = total.multiply(barber.getCommission());
+        BigDecimal barberAmount = commission;
+
+        Transaction transaction = Transaction.builder()
+                .reservation(reservation)
+                .barber(barber)
+                .totalAmount(total)
+                .barberCommission(commission)
+                .barberAmount(barberAmount)
+                .tip(tip)
+                .paymentMethod(null) // aún no pagado
+                .paymentStatus(PaymentStatus.PENDIENTE)
+                .transactionCode(generateTransactionCode())
+                .paymentDate(null)
+                .notes("Transacción pendiente creada automáticamente al reservar")
+                .build();
+
+        transactionRepository.save(transaction);
+    }
+
+
+    @Transactional
+    public TransactionResponse completeTransaction(Long transactionId, String userUuid){
+
+        Barber barber = barberService.getBarberByUserUuid(userUuid);
+
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaccion no encontrada"));
+
+        // VALIDACIÓN DE PROPIEDAD
+        if (!transaction.getBarber().getId().equals(barber.getId())) {
+            throw new ValidationException("No puedes confirmar pagos de otro barbero");
+        }
+
+        var confirmables = Set.of(PaymentStatus.PENDIENTE, PaymentStatus.EN_PROCESO);
+
+        if (!confirmables.contains(transaction.getPaymentStatus())) {
             throw new ValidationException("Esta transaccion ya fue procesada");
         }
 
@@ -92,27 +144,31 @@ public class TransactionService {
             throw new ValidationException("La transacción no tiene método de pago registrado");
         }
 
-        //cambiar estado
+        // confirmar pago
         transaction.setPaymentStatus(PaymentStatus.PAGADO);
         transaction.setPaymentDate(LocalDateTime.now());
-        transactionRepository.save(transaction);
 
-        //crear ingreso barberia
-        incomeService.createIncome(transaction);
-        //enviar email
-        sendTransactionNotifications(transaction);
+        Transaction saved = transactionRepository.save(transaction);
 
-        return mapToResponse(transaction);
+        // efectos secundarios
+        incomeService.createIncome(saved);
+        sendTransactionNotifications(saved);
+
+        return mapToResponse(saved);
     }
 
     @Transactional(readOnly = true)
-    public List<TransactionResponse> listTodayTransactions(String userUuid){
+    public List<TransactionResponse> listTodayTransactions(String userUuid) {
         Barber barber = barberService.getBarberByUserUuid(userUuid);
-        return transactionRepository.findTodayTransactionsByBarber(barber.getId())
+
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+        return transactionRepository
+                .findTodayTransactionsByBarber(barber.getId(), startOfDay, endOfDay)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
-
     }
 
 
@@ -129,16 +185,34 @@ public class TransactionService {
         emailService.sendTransactionConfirmationToClient(data);
         emailService.sendTransactionNotificationToBarber(data);
         emailService.sendTransactionNotificationToBarberShop(data);
+
+        // Notificar al BARBERO
+        notificationService.createNotification(
+                transaction.getBarber().getUser().getUserUuid(),
+                NotificationType.PAYMENT_CONFIRMED,
+                "Pago confirmado",
+                "Recibiste un pago de " + transaction.getBarberAmount() + " por la cita del " + transaction.getReservation().getDate(),
+                transaction.getReservation().getId()
+        );
+
+        // Notificar al CLIENTE
+        notificationService.createNotification(
+                transaction.getReservation().getClient().getUser().getUserUuid(),
+                NotificationType.PAYMENT_CONFIRMED,
+                "Pago confirmado",
+                "Tu pago de " + transaction.getTotalAmount() + " fue confirmado.",
+                transaction.getReservation().getId()
+        );
     }
 
     private Transaction buildTransaction(Reservation reservation, Barber barber,
-                                         TransactionRequest request,
+                                         PaymentRequest request,
                                          BigDecimal commission, BigDecimal barberAmount,
                                          BigDecimal tip) {
         return Transaction.builder()
                 .reservation(reservation)
                 .barber(barber)
-                .totalAmount(request.totalAmount())
+                .totalAmount(reservation.getFinalPrice())
                 .barberCommission(commission)
                 .barberAmount(barberAmount)
                 .tip(tip)

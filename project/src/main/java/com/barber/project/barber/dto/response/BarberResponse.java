@@ -12,14 +12,14 @@ public record BarberResponse(
         @Schema(description = "ID único del barbero", example = "15")
         Long barberId,
 
-        @Schema(description = "Correo electrónico", example = "carlos@email.com")
-        String email,
-
         @Schema(description = "Nombre del barbero", example = "Carlos")
-         String firstName,
+        String firstName,
 
         @Schema(description = "Apellido del barbero", example = "Ramírez")
         String lastName,
+
+        @Schema(description = "Correo electrónico", example = "carlos@email.com")
+        String email,
 
         @Schema(description = "Teléfono de contacto", example = "3006549871")
         String phone,

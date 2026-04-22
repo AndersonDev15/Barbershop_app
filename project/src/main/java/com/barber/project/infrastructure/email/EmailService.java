@@ -38,8 +38,8 @@ public class EmailService {
     @Value("${sendgrid.from}")
     private String fromEmail;
 
-    @Value("${app.backend-url}")
-    private String backendUrl;
+    @Value("${app.frontend-url}")
+    private String frontenddUrl;
 
     private final Logger log = LoggerFactory.getLogger(EmailService.class);
 
@@ -48,7 +48,7 @@ public class EmailService {
         try {
             Email from = new Email(fromEmail);
             Email toEmail = new Email(to);
-            Content content = new Content("text/plain", body);
+            Content content = new Content("text/html", body);
             Mail mail = new Mail(from, subject, toEmail, content);
 
             SendGrid sg = new SendGrid(apiKey);
@@ -71,26 +71,97 @@ public class EmailService {
     }
 
 
+
+
     @Async
     public void sendBarberInvitation(InvitationEmailData data) {
         String subject = "Invitación para unirte como barbero - " + data.barberShopName();
-        String invitationUrl = backendUrl + "/api/invitations/" + data.token();
+        String invitationUrl = frontenddUrl + "/invitations/" + data.token();
 
         String body = String.format("""
-            Hola,
-            
-            Has recibido una invitación para unirte como barbero a %s.
-            
-            Ver invitación:
-            %s
-            
-            Esta invitación expira el: %s
-            
-            Si no esperabas esta invitación, puedes ignorar este correo.
-            
-            Saludos,
-            Sistema de Reservas
-            """,
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="margin:0;padding:0;background-color:#0e0e0e;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+          <table width="100%%" cellpadding="0" cellspacing="0" style="background-color:#0e0e0e;padding:40px 0;">
+            <tr>
+              <td align="center">
+                <table width="560" cellpadding="0" cellspacing="0" style="background-color:#1c1b1b;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);">
+                  
+                  <!-- Top accent -->
+                  <tr>
+                    <td style="background:linear-gradient(90deg,#f2ca50,#d4af37);height:4px;"></td>
+                  </tr>
+                  
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding:36px 40px 24px;text-align:center;">
+                      <p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#f2ca50;">Invitación Profesional</p>
+                      <h1 style="margin:0;font-size:26px;font-weight:800;color:#e5e2e1;letter-spacing:-0.5px;">%s</h1>
+                      <p style="margin:8px 0 0;font-size:13px;color:#99907c;">te invita a unirte como barbero</p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Divider -->
+                  <tr>
+                    <td style="padding:0 40px;">
+                      <div style="height:1px;background:rgba(255,255,255,0.05);"></div>
+                    </td>
+                  </tr>
+                  
+                  <!-- Body -->
+                  <tr>
+                    <td style="padding:32px 40px;color:#d0c5af;font-size:15px;line-height:1.7;">
+                      <p style="margin:0 0 16px;">Hola,</p>
+                      <p style="margin:0 0 28px;">Has recibido una invitación para formar parte del equipo de <strong style="color:#e5e2e1;">%s</strong>. Haz clic en el botón para ver los detalles y aceptar.</p>
+                      
+                      <!-- CTA Button -->
+                      <table width="100%%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td align="center" style="padding:8px 0 32px;">
+                            <a href="%s" style="display:inline-block;background-color:#f2ca50;color:#3c2f00;font-size:14px;font-weight:800;text-decoration:none;padding:14px 40px;border-radius:999px;letter-spacing:0.05em;">
+                              Ver Invitación
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                      
+                      <!-- Expiry info -->
+                      <table width="100%%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="background-color:#131313;border-radius:8px;padding:14px 18px;">
+                            <table cellpadding="0" cellspacing="0">
+                              <tr>
+                                <td style="padding-right:10px;font-size:18px;">⏳</td>
+                                <td>
+                                  <p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Esta invitación expira el</p>
+                                  <p style="margin:2px 0 0;font-size:14px;font-weight:700;color:#e5e2e1;">%s</p>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="padding:20px 40px 32px;text-align:center;">
+                      <p style="margin:0;font-size:11px;color:#4d4635;letter-spacing:0.05em;">
+                        Si no esperabas esta invitación, puedes ignorar este correo.<br/>
+                        © 2024 Sistema de Reservas
+                      </p>
+                    </td>
+                  </tr>
+                  
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+        """,
+                data.barberShopName(),
                 data.barberShopName(),
                 invitationUrl,
                 formatDateTime(data.expiresAt())

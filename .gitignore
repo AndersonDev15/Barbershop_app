@@ -3,6 +3,7 @@
 init.sql
 server/.env
 project/.env
+bff/.env
 
 HELP.md
 target/

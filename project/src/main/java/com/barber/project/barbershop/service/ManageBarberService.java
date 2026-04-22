@@ -9,6 +9,8 @@ import com.barber.project.barber.entity.enums.BarberStatus;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +30,11 @@ public class ManageBarberService {
      */
 
     @Transactional(readOnly = true)
-    public List<BarberResponse> getBarber(String ownerUuid){
+    public Page<BarberResponse> getBarber(String ownerUuid, Pageable pageable){
+
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
-        return barberService.getBarbersByBarberShopId(barberShop.getId());
+
+        return barberService.getBarbersByBarberShopId(barberShop.getId(), pageable);
     }
 
     //actualizar commision

@@ -17,8 +17,12 @@ public record BarberShopResponse (
         @Schema(description = "Nombre de la barbería", example = "Barbería Elegante")
          String name,
 
+        @Schema(description = "Departamento donde se encuentra la barbería", example = "Cundinamarca")
+        String department,
+        @Schema(description = "Ciudad donde se encuentra la barbería", example = "Bogotá")
+        String city,
         @Schema(description = "Dirección completa", example = "Calle 123 #45-67, Bogotá")
-         String address,
+        String address,
 
         @Schema(description = "Teléfono de contacto", example = "3001234567")
          String phone,
@@ -30,5 +34,7 @@ public record BarberShopResponse (
                 description = "Horarios de hoy",
                 example = "[\"09:00 - 12:00\", \"14:00 - 19:00\"]"
         )
-         List<String> todaySchedules
+         List<String> todaySchedules,
+
+        String coverImageUrl
 ) { }

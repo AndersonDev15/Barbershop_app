@@ -30,7 +30,7 @@ public class AuthServerApplication {
 	@PostConstruct
 	public void checkConfig() {
 		System.out.println("===========================================");
-		System.out.println("📋 AUTH SERVER - Business API Key:");
+		System.out.println("AUTH SERVER - Business API Key:");
 		System.out.println("[" + businessApiKey + "]");
 		System.out.println("===========================================");
 	}

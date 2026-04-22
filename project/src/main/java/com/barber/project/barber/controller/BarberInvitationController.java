@@ -1,6 +1,7 @@
 package com.barber.project.barber.controller;
 
 import com.barber.project.barber.dto.request.BarberRequest;
+import com.barber.project.barber.dto.response.InvitationDetailsResponse;
 import com.barber.project.barbershop.dto.response.BarberInvitationResponse;
 import com.barber.project.Security.Jwt.CurrentUser;
 import com.barber.project.barber.service.BarberInvitationResponseService;
@@ -31,6 +32,15 @@ public class BarberInvitationController {
     public ResponseEntity<List<BarberInvitationResponse>> pendingInvitation(
             @AuthenticationPrincipal CurrentUser currentUser) {
         return ResponseEntity.ok(responseService.getPendingInvitations(currentUser.email()));
+    }
+
+    @GetMapping("/{token}")
+    public ResponseEntity<InvitationDetailsResponse> getInvitationDetails(
+            @PathVariable String token
+    ) {
+        return ResponseEntity.ok(
+                responseService.getInvitationDetails(token)
+        );
     }
 
     @Operation(summary = "Aceptar invitación")

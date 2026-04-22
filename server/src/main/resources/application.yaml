@@ -3,7 +3,7 @@ server:
 
 app:
   base-url: ${APP_BASE_URL:http://127.0.0.1:9000}
-  redirect-uri: ${APP_REDIRECT_URI:http://127.0.0.1:8080/login/oauth2/code/barberia-client}
+  redirect-uri: ${APP_REDIRECT_URI:http://127.0.0.1:8090/login/oauth2/code/barberia-client}
 
 spring:
   config:
@@ -25,7 +25,7 @@ spring:
     show-sql: false
 
   security:
-    oauth2:
+    oau<th2:
       client:
         registration:
           google:
@@ -78,4 +78,4 @@ reconciliation:
 logging:
   level:
     org.springframework.security: DEBUG
-    org.springframework.security.oauth2: DEBUG
+    org.springframework.security.oauth2: TRACE

@@ -8,6 +8,8 @@ import com.barber.project.reservation.entity.Reservation;
 import com.barber.project.infrastructure.email.EmailService;
 import com.barber.project.reservation.entity.ReservationItem;
 import com.barber.project.reservation.service.ReservationService;
+import com.barber.project.notification.service.NotificationService;
+import com.barber.project.notification.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -21,6 +23,7 @@ public class ReservationReminderScheduler {
     private final ReservationService reservationService;
     private final SubCategoryService subCategoryService;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     @Scheduled(cron = "0 * * * * *")
@@ -52,6 +55,25 @@ public class ReservationReminderScheduler {
 
             emailService.sendReminderClient(data);
             emailService.sendReminderBarber(data);
+
+            // Notificar al BARBERO
+            notificationService.createNotification(
+                    r.getBarber().getUser().getUserUuid(),
+                    NotificationType.APPOINTMENT_REMINDER,
+                    "Recordatorio de cita",
+                    "Tienes una cita en 20 minutos a las " + r.getStartTime(),
+                    r.getId()
+            );
+
+            // Notificar al CLIENTE
+            notificationService.createNotification(
+                    r.getClient().getUser().getUserUuid(),
+                    NotificationType.APPOINTMENT_REMINDER,
+                    "Recordatorio de cita",
+                    "Tu cita empieza en 20 minutos a las " + r.getStartTime(),
+                    r.getId()
+            );
+
             System.out.println("Recordatorio enviado → Reserva ID: " + r.getId());
         }
     }

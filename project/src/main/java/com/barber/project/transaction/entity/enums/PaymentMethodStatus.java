@@ -2,5 +2,5 @@ package com.barber.project.transaction.entity.enums;
 
 public enum PaymentMethodStatus {
     EFECTIVO,
-    TRANFERENCIA
+    TRANSFERENCIA
 }

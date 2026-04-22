@@ -22,7 +22,7 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 @Configuration
 public class ClientInitConfig {
 
-    @Value("${app.redirect-uri:http://127.0.0.1:8080/login/oauth2/code/barberia-client}")
+    @Value("${app.redirect-uri:http://127.0.0.1:8090/login/oauth2/code/barberia-client}")
     private String redirectUri;
 
     @Bean
@@ -41,8 +41,8 @@ public class ClientInitConfig {
                             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                             .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                            .redirectUri("http://127.0.0.1:8080/login/oauth2/code/barberia-client") // ✅ local
-                            .redirectUri(redirectUri) // ✅ configurable via env
+                            .redirectUri(redirectUri)
+                            .postLogoutRedirectUri("http://127.0.0.1:5173/login")// ✅ configurable via env
                             .scope(OidcScopes.OPENID)
                             .scope(OidcScopes.PROFILE)
                             .scope("read")

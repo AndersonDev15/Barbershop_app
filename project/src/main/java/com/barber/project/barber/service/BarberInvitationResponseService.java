@@ -9,6 +9,8 @@ import com.barber.project.barbershop.service.BarberInvitationService;
 import com.barber.project.user.entity.User;
 import com.barber.project.barbershop.entity.enums.InvitationStatus;
 import com.barber.project.user.service.UserService;
+import com.barber.project.notification.service.NotificationService;
+import com.barber.project.notification.enums.NotificationType;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,22 +27,21 @@ public class BarberInvitationResponseService {
     private final BarberInvitationService barberInvitationService;
     private final UserService userService;
     private final BarberService barberService;
+    private final NotificationService notificationService;
+
 
     @Transactional(readOnly = true)
     public List<BarberInvitationResponse> getPendingInvitations(String email) {
         return barberInvitationService.getPendingInvitations(email);
     }
 
+
     @Transactional(readOnly = true)
     public InvitationDetailsResponse getInvitationDetails(String token) {
+
         BarberInvitation invitation = barberInvitationService.findByToken(token);
 
-        if (invitation.getInvitationStatus() != InvitationStatus.PENDING) {
-            throw new ValidationException("Esta invitación ya fue procesada");
-        }
-        if (invitation.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Esta invitación ha expirado");
-        }
+        validateInvitation(invitation);
 
         return new InvitationDetailsResponse(
                 invitation.getBarberShop().getName(),
@@ -51,43 +52,65 @@ public class BarberInvitationResponseService {
         );
     }
 
+
     @Transactional
     public void acceptInvitation(String barberUuid, String email, String token) {
+
         BarberInvitation invitation = barberInvitationService.findByToken(token);
 
-        if (invitation.getExpiresAt().isBefore(LocalDateTime.now())) {
-            barberInvitationService.markAsExpired(invitation);
-            throw new ValidationException("Invitación expirada");
-        }
-        if (invitation.getInvitationStatus() != InvitationStatus.PENDING) {
-            throw new ValidationException("La invitación ya fue procesada");
-        }
+        validateInvitation(invitation);
+
         if (!invitation.getInvitedEmail().equalsIgnoreCase(email)) {
             throw new ValidationException("Esta invitación no es para tu cuenta");
         }
 
         User barberUser = userService.getByUuid(barberUuid);
-        barberService.validateUserHasNoBarberShop(barberUser);
-        barberService.createBarber(barberUser, invitation.getBarberShop(), invitation); // ✅
-        barberInvitationService.markAsAccepted(invitation);
-    }
-    @Transactional
-    public void rejectInvitation(String barberUuid, String token){
-        BarberInvitation invitation = barberInvitationService.findByToken(token);
-        User barberUser = userService.getByUuid(barberUuid);
 
+        barberService.validateUserHasNoBarberShop(barberUser);
+
+        barberService.createBarber(
+                barberUser,
+                invitation.getBarberShop(),
+                invitation
+        );
+
+        barberInvitationService.markAsAccepted(invitation);
+
+        // Notificar al barbero
+        notificationService.createNotification(
+                barberUuid,
+                NotificationType.INVITATION_RECEIVED,
+                "Invitación aceptada",
+                "Te has unido a " + invitation.getBarberShop().getName() + " exitosamente.",
+                invitation.getId()
+        );
+    }
+
+    @Transactional
+    public void rejectInvitation(String barberUuid, String token) {
+
+        BarberInvitation invitation = barberInvitationService.findByToken(token);
+
+        validateInvitation(invitation);
+
+        User barberUser = userService.getByUuid(barberUuid);
 
         if (!invitation.getInvitedEmail().equalsIgnoreCase(barberUser.getEmail())) {
             throw new ValidationException("Esta invitación no es para tu cuenta");
         }
 
-        if (invitation.getInvitationStatus() != InvitationStatus.PENDING) {
-            throw new ValidationException("Esta invitación ya fue procesada");
-        }
-
         barberInvitationService.markAsCanceled(invitation);
     }
 
+    private void validateInvitation(BarberInvitation invitation) {
 
+        if (invitation.getExpiresAt().isBefore(LocalDateTime.now())) {
+            barberInvitationService.markAsExpired(invitation);
+            throw new ValidationException("Invitación expirada");
+        }
 
+        if (invitation.getInvitationStatus() != InvitationStatus.PENDING) {
+            throw new ValidationException("Esta invitación ya fue procesada");
+        }
+    }
 }

@@ -34,6 +34,7 @@ public class CategoryService {
         category.setName(request.name());
         category.setDescription(request.description());
         category.setBarberShop(barberShop);
+        category.setStatus(CategoryStatus.ACTIVO);
         categoryRepository.save(category);
         return mapToResponse(category);
     }
@@ -123,7 +124,8 @@ public class CategoryService {
         return new CategoryResponse(
                 category.getId(),
                 category.getName(),
-                category.getDescription()
+                category.getDescription(),
+                category.getStatus()
         );
 
     }

@@ -34,7 +34,8 @@ public class SlotValidationService {
     private static final Set<ReservationStatus> BLOCKING_STATUSES = Set.of(
             ReservationStatus.PENDIENTE,
             ReservationStatus.CONFIRMADA,
-            ReservationStatus.EN_CURSO
+            ReservationStatus.EN_CURSO,
+            ReservationStatus.COMPLETADA
     );
 
     public List<SlotInfo> calculateAvailableSlots(

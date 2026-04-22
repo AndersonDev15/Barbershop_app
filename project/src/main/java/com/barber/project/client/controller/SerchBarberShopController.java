@@ -17,6 +17,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +50,22 @@ public class SerchBarberShopController {
             @ApiResponse(responseCode = "404", description = "No se encontró ninguna barbería con ese nombre.")
     })
     @GetMapping("/search")
-    public ResponseEntity<BarberShopResponse> searchBarberShop(@RequestParam String name){
-        BarberShopResponse barberShop = clientService.searchByName(name);
-        return ResponseEntity.ok(barberShop);
+    public ResponseEntity<List<BarberShopResponse>> searchBarberShop(@RequestParam String name) {
+        List<BarberShopResponse> results = clientService.searchByName(name);
+        return ResponseEntity.ok(results);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<BarberShopResponse>> getBarbershopsByCity(
+            @RequestParam String city,
+            @PageableDefault(size = 8, sort = "name") Pageable pageable) {
+
+        return ResponseEntity.ok(clientService.getByCity(city, pageable));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BarberShopResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(clientService.getById(id));
     }
 
     @Operation(
@@ -65,8 +81,13 @@ public class SerchBarberShopController {
             @ApiResponse(responseCode = "400", description = "ID de barbería inválido.")
     })
     @GetMapping("/{barbershopId}/barbers")
-    public ResponseEntity<List<BarberResponse>>getBarbersByShop(@PathVariable Long barbershopId){
-        List<BarberResponse> barbers = barberService.getBarbersByBarberShopId(barbershopId);
+    public ResponseEntity<Page<BarberResponse>> getBarbersByShop(
+            @PathVariable Long barbershopId,
+            Pageable pageable
+    ) {
+        Page<BarberResponse> barbers =
+                barberService.getBarbersByBarberShopId(barbershopId, pageable);
+
         return ResponseEntity.ok(barbers);
     }
 

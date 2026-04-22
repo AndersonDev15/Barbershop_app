@@ -6,6 +6,7 @@ import com.auth.server.Exceptions.JwtAccessDeniedHandler;
 import com.auth.server.Exceptions.JwtAuthEntryPoint;
 import com.auth.server.Handler.FederatedIdentityAuthenticationSuccessHandler;
 import com.auth.server.Repository.AuthIdentityRepository;
+import com.auth.server.Repository.FederatedIdentityRepository;
 import com.auth.server.Security.AuthUserDetailsService;
 import com.auth.server.Service.FederatedIdentityService;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -42,7 +43,11 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
-import com.auth.server.security.InternalApiKeyFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import com.auth.server.Security.InternalApiKeyFilter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +60,7 @@ public class AuthorizationSecurityConfig {
 
     private final AuthUserDetailsService authUserDetailsService;
     private final AuthIdentityRepository authIdentityRepository;
+    private final FederatedIdentityRepository federatedIdentityRepository;
     private final FederatedIdentityService federatedIdentityService;
     private final InternalApiKeyFilter internalApiKeyFilter;
 
@@ -66,14 +72,19 @@ public class AuthorizationSecurityConfig {
                 new OAuth2AuthorizationServerConfigurer();
 
         http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-                // CAMBIO AQUÍ: permitir /oauth2/token sin autenticación de usuario
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/oauth2/token").permitAll()  // ← Token endpoint público
-                        .anyRequest().authenticated()  // ← Resto requiere autenticación
+                        .requestMatchers("/oauth2/token").permitAll()
+                        .requestMatchers("/connect/logout").permitAll()  // ✅ Agregar esto
+                        .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.ignoringRequestMatchers(authorizationServerConfigurer.getEndpointsMatcher()))
                 .apply(authorizationServerConfigurer)
-                .oidc(oidc -> oidc.userInfoEndpoint(userInfo -> userInfo.userInfoMapper(this::mapUserInfo)));
+                .oidc(oidc -> oidc
+                        .userInfoEndpoint(userInfo -> userInfo.userInfoMapper(this::mapUserInfo))
+                        // ✅ Agregar esto:
+                        .logoutEndpoint(Customizer.withDefaults())
+                        .clientRegistrationEndpoint(Customizer.withDefaults())
+                );
 
         http.exceptionHandling(exceptions -> exceptions
                 .defaultAuthenticationEntryPointFor(
@@ -88,25 +99,35 @@ public class AuthorizationSecurityConfig {
     }
 
     private OidcUserInfo mapUserInfo(OidcUserInfoAuthenticationContext context) {
-        // Extrae el identificador (subject/email) de forma segura y directa
-        String email = context.getAuthorization().getPrincipalName();
+        String principalName = context.getAuthorization().getPrincipalName();
 
-        // Consulta BD
-        AuthIdentity identity = authIdentityRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + email));
+        AuthIdentity identity = authIdentityRepository.findByEmail(principalName)
+                .orElseGet(() -> federatedIdentityRepository
+                        .findAuthIdentityByProviderId(principalName)
+                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + principalName))
+                );
 
-        return OidcUserInfo.builder()
-                .subject(identity.getEmail())
-                .email(identity.getEmail())
-                .emailVerified(identity.isEmailVerified())
-                .givenName(identity.getFirstName())
-                .familyName(identity.getLastName())
-                .phoneNumber(identity.getPhone())
-                .claim("user_uuid", identity.getUserUuid())
-                .build();
+        // Agregar después de los claims existentes
+        boolean isGoogleUser = identity.getPassword() == null;
+
+
+        List<String> roles = identity.getRoles().stream()
+                .map(AuthRole::getName)
+                .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
+                .toList();
+
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("sub", identity.getUserUuid());
+        claims.put("email", identity.getEmail());
+        claims.put("given_name", identity.getFirstName());
+        claims.put("family_name", identity.getLastName());
+        claims.put("phone_number", identity.getPhone());
+        claims.put("roles", roles);
+        claims.put("is_google_user", isGoogleUser);
+
+        return new OidcUserInfo(claims);
     }
-
-
     @Bean
     @Order(2)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http,
@@ -182,6 +203,8 @@ public class AuthorizationSecurityConfig {
                 .build();
     }
 
+
+
     @Bean
     public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
         return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
@@ -242,9 +265,5 @@ public class AuthorizationSecurityConfig {
             }
         };
     }
-
-
-
-
 
 }

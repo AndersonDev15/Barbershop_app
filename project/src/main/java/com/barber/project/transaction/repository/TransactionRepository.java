@@ -7,8 +7,13 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface TransactionRepository extends JpaRepository<Transaction,Long> {
+
+    Optional<Transaction> findByReservationId(Long reservationId);
+    boolean existsByReservationId(Long reservationId);
+
 
     @Query("""
             SELECT t FROM Transaction t
@@ -23,11 +28,15 @@ public interface TransactionRepository extends JpaRepository<Transaction,Long> {
     );
 
     @Query("""
-        SELECT t FROM Transaction t
-        WHERE t.barber.id = :barberId
-        AND t.paymentStatus = 'PENDIENTE'
-        AND DATE(t.paymentDate) = CURRENT_DATE
-    """)
-    List<Transaction> findTodayTransactionsByBarber(@Param("barberId") Long barberId);
+    SELECT t FROM Transaction t
+    WHERE t.barber.id = :barberId
+    AND t.createdAt >= :startOfDay
+    AND t.createdAt < :endOfDay
+""")
+    List<Transaction> findTodayTransactionsByBarber(
+            @Param("barberId") Long barberId,
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay") LocalDateTime endOfDay
+    );
 }
 

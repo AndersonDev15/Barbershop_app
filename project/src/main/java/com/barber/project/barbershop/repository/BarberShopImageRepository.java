@@ -16,4 +16,14 @@ public interface BarberShopImageRepository extends JpaRepository<BarberShopImage
     @Modifying
     @Query("UPDATE BarberShopImage i SET i.isCover = false WHERE i.barberShop.id = :barberShopId")
     void clearCoverForBarberShop(Long barberShopId);
+
+    @Query("""
+SELECT i.imageUrl
+FROM BarberShopImage i
+WHERE i.barberShop.id = :shopId
+AND i.isCover = true
+""")
+    String findCoverImageUrl(Long shopId);
 }
+
+

@@ -41,7 +41,7 @@ public class FederatedIdentityService {
                 .email(email.toLowerCase().trim())
                 .firstName(givenName)
                 .lastName(familyName)
-                .password("{noop}N/A")
+                .password(null)
                 .phone(null)
                 .enabled(true)
                 .emailVerified(emailVerified != null ? emailVerified : null)

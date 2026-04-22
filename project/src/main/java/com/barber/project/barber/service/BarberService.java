@@ -13,6 +13,8 @@ import com.barber.project.barbershop.service.BarberShopService;
 import com.barber.project.user.entity.User;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,16 +29,13 @@ public class BarberService {
     private final BarberShopService barberShopService;
 
     @Transactional(readOnly = true)
-    public List<BarberResponse> getBarbersByBarberShopId(Long barbershopId) {
+    public Page<BarberResponse> getBarbersByBarberShopId(Long barbershopId, Pageable pageable) {
+
         BarberShop barberShop = barberShopService.getBarberShopById(barbershopId);
-
         barberShopService.ensureActive(barberShop);
-        //barberos
-        return barberRepository.findByBarberShopIdWithUser(barbershopId)
-                .stream()
-                .map(this::mapToBarberResponse)
-                .toList();
 
+        return barberRepository.findByBarberShopId(barbershopId, pageable)
+                .map(this::mapToBarberResponse);
     }
 
     @Transactional(readOnly = true)
@@ -62,6 +61,8 @@ public class BarberService {
         barber.setCommission(newCommission);
         return UpdateBarberResponse.from(barberRepository.save(barber));
     }
+
+
 
     @Transactional
     public void changeStatus(Barber barber, BarberStatus newStatus) {

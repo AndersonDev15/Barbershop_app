@@ -21,6 +21,9 @@ import com.barber.project.reservation.dto.response.ServiceInfo;
 import com.barber.project.reservation.entity.Reservation;
 import com.barber.project.reservation.entity.ReservationItem;
 import com.barber.project.reservation.repository.ReservationRepository;
+import com.barber.project.notification.service.NotificationService;
+import com.barber.project.notification.enums.NotificationType;
+import com.barber.project.transaction.service.TransactionService;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +50,8 @@ public class ReservationService {
     private final EmailService emailService;
     private final ReservationRepository reservationRepository;
     private final SubCategoryService subCategoryService;
+    private final TransactionService transactionService;
+    private final NotificationService notificationService;
 
     private static final int MIN_CANCELLATION_MINUTES = 15;
 
@@ -78,6 +83,8 @@ public class ReservationService {
                 buildReservation(validation.barber(), client, request, calculation);
 
         Reservation saved = reservationRepository.save(reservation);
+
+        transactionService.createPendingTransactionFromReservation(saved);
 
         sendNewReservationNotifications(saved, calculation.services());
 
@@ -194,6 +201,8 @@ public class ReservationService {
         reservation.setStatus(newStatus);
 
         Reservation saved = reservationRepository.save(reservation);
+
+
 
         List<ServiceInfo> services = getServicesFromReservation(saved);
 
@@ -327,6 +336,24 @@ public class ReservationService {
 
         emailService.sendNewReservationToBarber(data);
         emailService.sendReservationConfirmationToClient(data);
+
+        // Notificar al BARBERO
+        notificationService.createNotification(
+                reservation.getBarber().getUser().getUserUuid(),
+                NotificationType.APPOINTMENT_SCHEDULED,
+                "Nueva cita agendada",
+                "Tienes una nueva cita el " + reservation.getDate() + " a las " + reservation.getStartTime(),
+                reservation.getId()
+        );
+
+        // Notificar al CLIENTE
+        notificationService.createNotification(
+                reservation.getClient().getUser().getUserUuid(),
+                NotificationType.APPOINTMENT_SCHEDULED,
+                "Cita confirmada",
+                "Tu cita en " + reservation.getBarber().getBarberShop().getName() + " está confirmada para el " + reservation.getDate() + " a las " + reservation.getStartTime(),
+                reservation.getId()
+        );
     }
 
     private void sendStatusChangeEmail(
@@ -359,6 +386,24 @@ public class ReservationService {
 
         emailService.sendReservationCancellBarber(data);
         emailService.sendReservationCancelClient(data);
+
+        // Notificar al BARBERO
+        notificationService.createNotification(
+                reservation.getBarber().getUser().getUserUuid(),
+                NotificationType.APPOINTMENT_CANCELLED,
+                "Cita cancelada",
+                "La cita del " + reservation.getDate() + " a las " + reservation.getStartTime() + " fue cancelada.",
+                reservation.getId()
+        );
+
+        // Notificar al CLIENTE
+        notificationService.createNotification(
+                reservation.getClient().getUser().getUserUuid(),
+                NotificationType.APPOINTMENT_CANCELLED,
+                "Cita cancelada",
+                "Tu cita del " + reservation.getDate() + " a las " + reservation.getStartTime() + " fue cancelada.",
+                reservation.getId()
+        );
     }
 
     private void validateCancellationTime(LocalDate date, LocalTime startTime) {

@@ -22,6 +22,8 @@ public class BarberShop {
     private Long id;
     private String name;
     private String address;
+    private String department;
+    private String city;
     private String phone;
     @Enumerated(EnumType.STRING)
     private BarberShopStatus status = BarberShopStatus.ACTIVO;
@@ -36,5 +38,8 @@ public class BarberShop {
 
     @OneToMany(mappedBy = "barberShop",fetch = FetchType.LAZY)
     private List<Category> categories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "barberShop", fetch = FetchType.LAZY)
+    private List<BarberShopImage> images;
 
 }

@@ -17,11 +17,11 @@ public class ClientProfileService {
     private final ClientRepository clientRepository;
 
     @Transactional
-    public Client createClient (String userUuid){
+    public void createClient(String userUuid) {
         User user = userService.getByUuid(userUuid);
 
-        return clientRepository.findByUser_UserUuid(userUuid)
-                .orElseGet(()->{
+        clientRepository.findByUser_UserUuid(userUuid)
+                .orElseGet(() -> {
                     Client newClient = Client.builder()
                             .user(user)
                             .build();

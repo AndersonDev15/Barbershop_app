@@ -7,6 +7,7 @@ import com.barber.project.barbershop.dto.request.BarberShopProfileUpdateRequest;
 import com.barber.project.barbershop.dto.response.BarberShopProfileResponse;
 import com.barber.project.barbershop.entity.BarberShop;
 import com.barber.project.barbershop.entity.enums.BarberShopStatus;
+import com.barber.project.barbershop.repository.BarberShopImageRepository;
 import com.barber.project.user.entity.User;
 import com.barber.project.shared.Exception.ResourceNotFoundException;
 import com.barber.project.barbershop.repository.BarberShopRepository;
@@ -16,11 +17,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Normalizer;
+import java.util.Optional;
+
+import static com.barber.project.Util.StringNormalizer.normalize;
+
 @Service
 @RequiredArgsConstructor
 public class BarberShopProfileService {
     private final UserService userService;
     private final BarberShopRepository barberShopRepository;
+    private final BarberShopImageRepository barberShopImageRepository;
 
 
     @Transactional
@@ -34,6 +41,8 @@ public class BarberShopProfileService {
 
         BarberShop barberShop = BarberShop.builder()
                 .name(request.barberShopName())
+                .department(normalize(request.department()))
+                .city(normalize(request.city()))
                 .address(request.address())
                 .phone(request.phone())
                 .status(BarberShopStatus.ACTIVO)
@@ -62,6 +71,8 @@ public class BarberShopProfileService {
                 .orElseThrow(() -> new ResourceNotFoundException("Barbería no encontrada"));
 
         barberShop.setName(request.getBarberShopName());
+        barberShop.setDepartment(normalize(request.getDepartment()));
+        barberShop.setCity(normalize(request.getCity()));
         barberShop.setAddress(request.getAddress());
         barberShop.setPhone(request.getBarberShopPhone());
         barberShopRepository.save(barberShop);
@@ -70,13 +81,24 @@ public class BarberShopProfileService {
 
 
     private BarberShopProfileResponse mapToResponse(BarberShop barberShop){
+
+        String coverImageUrl = Optional.ofNullable(
+                barberShopImageRepository.findCoverImageUrl(barberShop.getId())
+        ).orElse(null);
+
         return new BarberShopProfileResponse(
                 barberShop.getId(),
                 barberShop.getName(),
+                barberShop.getDepartment(),
+                barberShop.getCity(),
                 barberShop.getAddress(),
-                barberShop.getPhone()
-
+                barberShop.getPhone(),
+                barberShop.getStatus(),
+                coverImageUrl
         );
     }
+
+
+
 }
 

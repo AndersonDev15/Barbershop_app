@@ -22,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Barbero - Transacciones")
 public class TransactionBarberController {
+
     private final TransactionService transactionService;
 
     @Operation(summary = "Completar una transacción", description = "El barbero confirma la recepción del pago.")
@@ -33,8 +34,12 @@ public class TransactionBarberController {
     })
     @PatchMapping("/{id}/complete")
     public ResponseEntity<TransactionResponse> completeTransaction(
-            @PathVariable Long id) {
-        return ResponseEntity.ok(transactionService.completeTransaction(id));
+            @PathVariable Long id,
+            @AuthenticationPrincipal CurrentUser currentUser) {
+
+        return ResponseEntity.ok(
+                transactionService.completeTransaction(id, currentUser.userUuid())
+        );
     }
 
     @Operation(summary = "Transacciones de hoy", description = "Lista las transacciones del día actual.")
@@ -42,10 +47,12 @@ public class TransactionBarberController {
             @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente."),
             @ApiResponse(responseCode = "401", description = "No autorizado.")
     })
-    @GetMapping
+    @GetMapping("/today")
     public ResponseEntity<List<TransactionResponse>> getTodayTransactions(
             @AuthenticationPrincipal CurrentUser currentUser) {
-        return ResponseEntity.ok(transactionService.listTodayTransactions(currentUser.userUuid()));
+
+        return ResponseEntity.ok(
+                transactionService.listTodayTransactions(currentUser.userUuid())
+        );
     }
 }
-

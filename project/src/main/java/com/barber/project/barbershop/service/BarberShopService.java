@@ -3,6 +3,7 @@ package com.barber.project.barbershop.service;
 import com.barber.project.barbershop.dto.request.OpeningHoursRequest;
 import com.barber.project.barbershop.dto.response.OpeningHoursResponse;
 import com.barber.project.barbershop.entity.BarberShop;
+import com.barber.project.barbershop.entity.BarberShopImage;
 import com.barber.project.barbershop.entity.OpeningHours;
 import com.barber.project.barbershop.entity.enums.BarberShopStatus;
 import com.barber.project.shared.Exception.BadRequestException;
@@ -11,6 +12,8 @@ import com.barber.project.barbershop.repository.BarberShopRepository;
 import com.barber.project.barbershop.repository.OpeningHoursRepository;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -149,9 +152,17 @@ public class BarberShopService {
         return openingHoursRepository.findByBarberShopAndDayOfWeek(barberShop, day);
     }
 
-    public BarberShop getBarberShopByName(String name) {
-        return barberShopRepository.findByNameIgnoreCase(name)
-                .orElseThrow(() -> new ResourceNotFoundException("Barbería no encontrada"));
+    public List<BarberShop> searchByNameContaining(String name) {
+        return barberShopRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<BarberShop> findActiveByCity(String city, Pageable pageable) {
+        return barberShopRepository.findByCityIgnoreCaseAndStatus(
+                city,
+                BarberShopStatus.ACTIVO,
+                pageable
+        );
     }
 
     public BarberShop getOwnerBarberShop(String ownerUuid){
@@ -181,6 +192,14 @@ public class BarberShopService {
             throw new BadRequestException("El horario no puede exceder las 24 horas");
         }
 
+    }
+
+    public String getCoverImageUrl(BarberShop barberShop) {
+        return barberShop.getImages().stream()
+                .filter(BarberShopImage::isCover)
+                .map(BarberShopImage::getImageUrl)
+                .findFirst()
+                .orElse(null);
     }
 
 

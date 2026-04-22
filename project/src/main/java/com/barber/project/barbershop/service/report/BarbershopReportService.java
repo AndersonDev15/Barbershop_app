@@ -1,5 +1,7 @@
 package com.barber.project.barbershop.service.report;
 
+import com.barber.project.barber.dto.response.report.DayIncomeResponse;
+import com.barber.project.barbershop.entity.enums.ReportType;
 import com.barber.project.shared.dto.report.MonthlyComparisonResponse;
 import com.barber.project.barber.entity.Barber;
 import com.barber.project.barber.service.BarberService;
@@ -16,6 +18,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -76,23 +79,51 @@ public class BarbershopReportService {
 
     }
 
-    //reporte semanal
-    @Transactional(readOnly = true)
-    public IncomesByBarberResponse weeklyReport(String ownerUuid, LocalDate anyDayInWeek) {
-        return incomesByDateRange(
-                ownerUuid,
-                anyDayInWeek.with(DayOfWeek.MONDAY),
-                anyDayInWeek.with(DayOfWeek.SUNDAY)
-        );
-    }
 
-    //reporte mensual
     @Transactional(readOnly = true)
-    public IncomesByBarberResponse monthlyReport(String ownerUuid, LocalDate anyDayInMonth) {
-        return incomesByDateRange(
-                ownerUuid,
-                anyDayInMonth.withDayOfMonth(1),
-                anyDayInMonth.withDayOfMonth(anyDayInMonth.lengthOfMonth())
+    public ReportResponse getReport(String ownerUuid, ReportType type, LocalDate referenceDate) {
+
+        LocalDate date = referenceDate != null ? referenceDate : LocalDate.now();
+
+        LocalDate start;
+        LocalDate end;
+
+        switch (type) {
+            case WEEKLY -> {
+                start = date.with(DayOfWeek.MONDAY);
+                end = date.with(DayOfWeek.SUNDAY);
+            }
+            case MONTHLY -> {
+                start = date.withDayOfMonth(1);
+                end = date.withDayOfMonth(date.lengthOfMonth());
+            }
+            case YEARLY -> {
+                start = date.withDayOfYear(1);
+                end = date.withDayOfYear(date.lengthOfYear());
+            }
+            default -> throw new IllegalArgumentException("Invalid report type");
+        }
+
+        // 🔹 reutilizas TODO lo que ya hiciste
+        BarberShopIncomeSummary summary =
+                calculateBarberShopIncome(ownerUuid, start, end);
+
+        IncomesByBarberResponse byBarber =
+                incomesByDateRange(ownerUuid, start, end);
+
+        List<DayIncomeResponse> timeline =
+                dailyIncomeRange(ownerUuid, start, end);
+
+        return new ReportResponse(
+                start,
+                end,
+                summary.totalIncome(),
+                summary.barberShopIncome(),
+                summary.totalBarberCommission(),
+                summary.totalTips(),
+                summary.transactionCount(),
+                byBarber.barbers(),
+                timeline
         );
     }
 
@@ -184,6 +215,36 @@ public class BarbershopReportService {
         );
     }
 
+    //ultimos 7 dias
+    @Transactional(readOnly = true)
+    public List<DayIncomeResponse> dailyIncomeRange(String ownerUuid, LocalDate start, LocalDate end) {
+
+        BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
+
+        List<BarberShopIncome> incomes =
+                barberShopIncomeService.findByBarbershopIdAndDateRange(barberShop.getId(), start, end);
+
+        Map<LocalDate, BigDecimal> grouped = incomes.stream()
+                .collect(Collectors.groupingBy(
+                        income -> income.getTransactionDate().toLocalDate(),
+                        Collectors.mapping(
+                                BarberShopIncome::getTotalAmount,
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add)
+                        )
+                ));
+        // completar días sin datos
+        List<DayIncomeResponse> result = new ArrayList<>();
+
+        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+            result.add(new DayIncomeResponse(
+                    date,
+                    grouped.getOrDefault(date, BigDecimal.ZERO)
+            ));
+        }
+
+        return result;
+    }
+
     private BigDecimal sumTotalAmount(List<BarberShopIncome> incomes) {
         return incomes.stream()
                 .map(BarberShopIncome::getTotalAmount)
@@ -213,22 +274,6 @@ public class BarbershopReportService {
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
 

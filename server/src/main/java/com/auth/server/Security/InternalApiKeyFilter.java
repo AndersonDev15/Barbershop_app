@@ -1,4 +1,4 @@
-package com.auth.server.security;
+package com.auth.server.Security;
 
 import com.auth.server.Config.InternalApiProperties;
 import jakarta.servlet.FilterChain;

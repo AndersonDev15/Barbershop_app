@@ -1,0 +1,82 @@
+server:
+  port: ${BFF_PORT:8090}
+
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: barberia-bff
+
+  security:
+    oauth2:
+      client:
+        registration:
+          barberia-client:
+            provider: barberia-auth-server
+            client-id: ${OAUTH2_CLIENT_ID:barberia-client}
+            client-secret: ${OAUTH2_CLIENT_SECRET:123456}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - openid
+              - profile
+            client-authentication-method: client_secret_basic
+        provider:
+          barberia-auth-server:
+            issuer-uri: ${AUTH_SERVER_URL:http://127.0.0.1:9000}
+            authorization-uri: ${AUTH_SERVER_URL:http://127.0.0.1:9000}/oauth2/authorize
+            token-uri: ${AUTH_SERVER_URL:http://127.0.0.1:9000}/oauth2/token
+            jwk-set-uri: ${AUTH_SERVER_URL:http://127.0.0.1:9000}/oauth2/jwks
+            user-info-uri: ${AUTH_SERVER_URL:http://127.0.0.1:9000}/userinfo
+            end-session-uri: ${AUTH_SERVER_URL:http://127.0.0.1:9000}/connect/logout
+
+  cloud:
+    gateway:
+      routes:
+        - id: auth-server-users
+          uri: ${AUTH_SERVER_URL:http://localhost:9000}
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - TokenRelay=
+            - RemoveRequestHeader=Cookie
+
+        - id: auth-server-auth
+          uri: ${AUTH_SERVER_URL:http://localhost:9000}
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - TokenRelay=
+            - RemoveRequestHeader=Cookie
+
+        - id: api-barberia
+          uri: ${BARBERIA_API_URL:http://localhost:8080}
+          predicates:
+            - Path=/api/**
+          filters:
+            - TokenRelay=
+            - RemoveRequestHeader=Cookie
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - ${FRONTEND_URL:http://localhost:5173}
+              - ${FRONTEND_URL_ALT:http://127.0.0.1:5173}
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+logging:
+  level:
+    org.springframework.security: ${LOG_LEVEL_SECURITY:DEBUG}
+    org.springframework.cloud.gateway: ${LOG_LEVEL_GATEWAY:DEBUG}

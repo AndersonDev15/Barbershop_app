@@ -1,5 +1,6 @@
 package com.barber.project.barbershop.controller.report;
 
+import com.barber.project.barbershop.dto.response.report.BarbershopDashboardResponse;
 import com.barber.project.barbershop.dto.response.report.BarbershopReportResponse;
 import com.barber.project.Security.Jwt.CurrentUser;
 import com.barber.project.barbershop.service.report.BarberShopDashboardService;
@@ -32,10 +33,10 @@ public class BarberShopDashboardController {
             @ApiResponse(responseCode = "200", description = "Datos del dashboard obtenidos correctamente")
     })
     @GetMapping
-    public ResponseEntity<BarbershopReportResponse> getDashboard(
+    public ResponseEntity<BarbershopDashboardResponse> getDashboard(
             @AuthenticationPrincipal CurrentUser currentUser
             ){
-        BarbershopReportResponse response = barberShopDashboardService.dashboard(currentUser.userUuid());
+        BarbershopDashboardResponse response = barberShopDashboardService.dashboard(currentUser.userUuid());
         return ResponseEntity.ok(response);
     }
 }
