@@ -1,17 +1,46 @@
-# Ignorar archivo local de variables de entorno
+# =========================
+# 🔐 ENV
+# =========================
 .env
-init.sql
-server/.env
-project/.env
-bff/.env
+.env.*
+**/.env
 
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# =========================
+# 🟢 JAVA / SPRING
+# =========================
+**/target/
+**/*.log
+**/logs/
 
-### STS ###
+# Maven
+**/.mvn/wrapper/maven-wrapper.jar
+
+# =========================
+# 🟣 FRONTEND
+# =========================
+front-barbershop/node_modules/
+front-barbershop/dist/
+front-barbershop/build/
+front-barbershop/.vite/
+front-barbershop/.next/
+
+# logs frontend
+front-barbershop/npm-debug.log*
+front-barbershop/yarn-debug.log*
+front-barbershop/yarn-error.log*
+
+# =========================
+# 🟡 IDEs
+# =========================
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# =========================
+# 🔵 STS / Eclipse
+# =========================
 .apt_generated
 .classpath
 .factorypath
@@ -20,23 +49,20 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
+# =========================
+# 🟠 NetBeans
+# =========================
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
-.vscode/
-
+# =========================
+# 🔴 OS
+# =========================
+.DS_Store
+Thumbs.db
+*.swp
 

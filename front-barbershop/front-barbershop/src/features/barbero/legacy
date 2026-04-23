@@ -1,0 +1,726 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-container": "#d4af37",
+              "on-tertiary-fixed-variant": "#004e5a",
+              "on-surface": "#e5e2e1",
+              "on-primary-fixed": "#241a00",
+              "tertiary-container": "#00c4de",
+              background: "#131313",
+              "on-error-container": "#ffdad6",
+              "on-secondary-fixed-variant": "#474746",
+              "inverse-on-surface": "#313030",
+              "outline-variant": "#4d4635",
+              "surface-dim": "#131313",
+              tertiary: "#3de1fc",
+              "secondary-fixed-dim": "#c8c6c5",
+              error: "#ffb4ab",
+              outline: "#99907c",
+              "on-tertiary-fixed": "#001f25",
+              "surface-container-lowest": "#0e0e0e",
+              "surface-container-highest": "#353534",
+              "on-primary-fixed-variant": "#574500",
+              "surface-container-high": "#2a2a2a",
+              "surface-tint": "#e9c349",
+              secondary: "#c8c6c5",
+              "primary-fixed": "#ffe088",
+              "on-primary-container": "#554300",
+              "on-error": "#690005",
+              "surface-container-low": "#1c1b1b",
+              "on-tertiary-container": "#004c57",
+              "on-secondary": "#313030",
+              "on-tertiary": "#00363e",
+              "on-primary": "#3c2f00",
+              "inverse-primary": "#735c00",
+              "on-secondary-container": "#b7b4b4",
+              "surface-container": "#201f1f",
+              "tertiary-fixed-dim": "#2fd9f4",
+              primary: "#f2ca50",
+              "primary-fixed-dim": "#e9c349",
+              "tertiary-fixed": "#a2eeff",
+              "secondary-container": "#474746",
+              "on-background": "#e5e2e1",
+              "surface-variant": "#353534",
+              "on-secondary-fixed": "#1c1b1b",
+              surface: "#131313",
+              "on-surface-variant": "#d0c5af",
+              "surface-bright": "#3a3939",
+              "secondary-fixed": "#e5e2e1",
+              "error-container": "#93000a",
+              "inverse-surface": "#e5e2e1",
+            },
+            borderRadius: {
+              DEFAULT: "1rem",
+              lg: "2rem",
+              xl: "3rem",
+              full: "9999px",
+            },
+            fontFamily: {
+              headline: ["Manrope"],
+              body: ["Inter"],
+              label: ["Inter"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #131313;
+        color: #e5e2e1;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: "Manrope", sans-serif;
+      }
+      .appointment-dropdown {
+        display: none;
+      }
+      .appointment-dropdown.show {
+        display: block;
+      }
+      #toast {
+        transform: translateY(100%);
+        transition: transform 0.3s ease-out;
+      }
+      #toast.show {
+        transform: translateY(0);
+      }
+
+      .btn-loading {
+        pointer-events: none;
+        opacity: 0.7;
+      }
+      .btn-loading .material-symbols-outlined {
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Custom date picker styling */
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(0.8) sepia(100%) saturate(200%) hue-rotate(10deg);
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body class="bg-background text-on-surface flex min-h-screen">
+    <!-- SideNavBar -->
+    <aside
+      class="h-screen w-64 fixed left-0 top-0 bg-[#0e0e0e] flex flex-col py-8 z-50 overflow-y-auto border-r border-outline-variant/20"
+    >
+      <div class="px-8 mb-12">
+        <h1 class="text-2xl font-black text-[#f2ca50]">The Midnight Atelier</h1>
+        <p
+          class="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mt-1"
+        >
+          Premium Grooming
+        </p>
+      </div>
+      <nav class="flex-1 space-y-2 px-4">
+        <a
+          class="flex items-center gap-4 px-4 py-3 rounded-lg text-[#e5e2e1]/60 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] transition-all group"
+          href="#"
+        >
+          <span class="material-symbols-outlined" data-icon="dashboard"
+            >dashboard</span
+          >
+          <span class="font-label text-sm font-medium tracking-wider uppercase"
+            >Dashboard</span
+          >
+        </a>
+        <a
+          class="flex items-center gap-4 px-4 py-3 rounded-lg text-[#e5e2e1]/60 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] transition-all group"
+          href="#"
+        >
+          <span class="material-symbols-outlined" data-icon="calendar_today"
+            >calendar_today</span
+          >
+          <span class="font-label text-sm font-medium tracking-wider uppercase"
+            >Daily Availability</span
+          >
+        </a>
+        <a
+          class="flex items-center gap-4 px-4 py-3 rounded-lg text-[#f2ca50] border-r-4 border-[#f2ca50] bg-[#1c1b1b] translate-x-1 transition-transform group"
+          href="#"
+        >
+          <span class="material-symbols-outlined" data-icon="event_available"
+            >event_available</span
+          >
+          <span class="font-label text-sm font-medium tracking-wider uppercase"
+            >Appointments</span
+          >
+        </a>
+        <a
+          class="flex items-center gap-4 px-4 py-3 rounded-lg text-[#e5e2e1]/60 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] transition-all group"
+          href="#"
+        >
+          <span class="material-symbols-outlined" data-icon="calendar_month"
+            >calendar_month</span
+          >
+          <span class="font-label text-sm font-medium tracking-wider uppercase"
+            >Calendar View</span
+          >
+        </a>
+        <a
+          class="flex items-center gap-4 px-4 py-3 rounded-lg text-[#e5e2e1]/60 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] transition-all group"
+          href="#"
+        >
+          <span class="material-symbols-outlined" data-icon="coffee"
+            >coffee</span
+          >
+          <span class="font-label text-sm font-medium tracking-wider uppercase"
+            >Breaks</span
+          >
+        </a>
+        <a
+          class="flex items-center gap-4 px-4 py-3 rounded-lg text-[#e5e2e1]/60 hover:text-[#e5e2e1] hover:bg-[#1c1b1b] transition-all group"
+          href="#"
+        >
+          <span class="material-symbols-outlined" data-icon="notifications"
+            >notifications</span
+          >
+          <span class="font-label text-sm font-medium tracking-wider uppercase"
+            >Notifications</span
+          >
+        </a>
+      </nav>
+      <!-- User Profile & Logout at bottom -->
+      <div class="px-4 mt-auto pt-8 border-t border-outline-variant/20">
+        <div class="flex items-center gap-4 px-4 mb-6">
+          <div
+            class="w-10 h-10 rounded-full bg-primary-container overflow-hidden"
+          >
+            <img
+              alt="Marcus V."
+              class="w-full h-full object-cover"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKvqgeiajHYmKnz_7uWSzQX6qrMnTu-QaR0rhTaiD3sozHsfr-UfZ78hmRIwNj48r0v7gpK2HD06SgO984S3g2haHA4zq-alV7IY0SbkHiB5-4F6CZzIpmQRvRUYfAxdEGiVCI7QtLQmeRmQRJdr2xGrgAfsVT_q0S6LfuFwLQnEY-Wgif2txQtGtAwWIIJRf0zlPkcQf_GrNnOwcKGlrZ_VsLcfbPrgFb41f9jD3ZLjb6fCqwVJh0Jv0iyVUdBwotfxJr2otYt7P9"
+            />
+          </div>
+          <div class="flex flex-col">
+            <span class="text-sm font-bold text-on-surface">Marcus V.</span>
+            <span
+              class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold"
+              >Barber</span
+            >
+          </div>
+        </div>
+        <button
+          class="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-error hover:bg-error/10 transition-all group mb-4"
+        >
+          <span class="material-symbols-outlined" data-icon="logout"
+            >logout</span
+          >
+          <span class="font-label text-sm font-medium tracking-wider uppercase"
+            >Logout</span
+          >
+        </button>
+        <button
+          class="w-full bg-primary text-on-primary font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95 duration-100"
+        >
+          <span class="material-symbols-outlined" data-icon="add">add</span>
+          <span>New Booking</span>
+        </button>
+      </div>
+    </aside>
+    <!-- Main Content Area -->
+    <main class="ml-64 flex-1 flex flex-col min-h-screen">
+      <!-- TopNavBar -->
+      <header
+        class="w-full h-16 flex justify-between items-center px-8 bg-[#131313] sticky top-0 z-40 border-b border-outline-variant/10"
+      >
+        <div class="flex items-center gap-4">
+          <span class="text-xl font-bold tracking-tight text-[#e5e2e1]"
+            >Lather &amp; Lead</span
+          >
+          <div class="h-4 w-[1px] bg-outline-variant/30"></div>
+          <div class="flex flex-col">
+            <span class="text-sm font-bold text-on-surface">Marcus V.</span>
+            <span
+              class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold"
+              >Barber</span
+            >
+          </div>
+        </div>
+        <div class="flex items-center gap-6">
+          <button
+            class="relative text-[#e5e2e1]/70 hover:bg-[#3a3939] p-2 rounded-full transition-colors active:scale-95 duration-100"
+          >
+            <span class="material-symbols-outlined" data-icon="notifications"
+              >notifications</span
+            >
+            <span
+              class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-[#131313]"
+            ></span>
+          </button>
+          <div
+            class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden cursor-pointer active:scale-95 duration-100 border border-primary/20"
+          >
+            <img
+              alt="User profile avatar"
+              class="w-full h-full object-cover"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKvqgeiajHYmKnz_7uWSzQX6qrMnTu-QaR0rhTaiD3sozHsfr-UfZ78hmRIwNj48r0v7gpK2HD06SgO984S3g2haHA4zq-alV7IY0SbkHiB5-4F6CZzIpmQRvRUYfAxdEGiVCI7QtLQmeRmQRJdr2xGrgAfsVT_q0S6LfuFwLQnEY-Wgif2txQtGtAwWIIJRf0zlPkcQf_GrNnOwcKGlrZ_VsLcfbPrgFb41f9jD3ZLjb6fCqwVJh0Jv0iyVUdBwotfxJr2otYt7P9"
+            />
+          </div>
+        </div>
+      </header>
+      <!-- Canvas Area -->
+      <div class="p-12 max-w-6xl mx-auto w-full">
+        <div
+          class="flex flex-col xl:flex-row xl:items-start justify-between gap-8 mb-12"
+        >
+          <div class="flex flex-col gap-6">
+            <!-- Date Navigation Controls -->
+            <div class="flex items-center gap-2">
+              <div
+                class="flex items-center bg-surface-container-low p-1 rounded-lg border border-outline-variant/10"
+              >
+                <button
+                  class="p-2 hover:bg-surface-variant rounded-md text-on-surface transition-colors"
+                  onclick="navigateDate(-1)"
+                  title="Previous Day"
+                >
+                  <span
+                    class="material-symbols-outlined text-xl"
+                    data-icon="chevron_left"
+                    >chevron_left</span
+                  >
+                </button>
+                <button
+                  class="px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-primary hover:bg-primary/10 rounded-md transition-colors"
+                  onclick="setToday()"
+                >
+                  Today
+                </button>
+                <button
+                  class="p-2 hover:bg-surface-variant rounded-md text-on-surface transition-colors"
+                  onclick="navigateDate(1)"
+                  title="Next Day"
+                >
+                  <span
+                    class="material-symbols-outlined text-xl"
+                    data-icon="chevron_right"
+                    >chevron_right</span
+                  >
+                </button>
+              </div>
+              <div class="relative">
+                <input
+                  class="bg-surface-container-low border border-outline-variant/10 text-on-surface text-sm font-bold rounded-lg focus:ring-primary focus:border-primary block w-full pl-4 pr-10 py-2.5 cursor-pointer"
+                  id="appointment-date-picker"
+                  onchange="handleDateChange(this.value)"
+                  type="date"
+                  value="2024-10-24"
+                />
+              </div>
+            </div>
+            <div>
+              <p
+                class="font-label text-sm uppercase tracking-[0.3em] text-primary font-bold mb-2"
+              >
+                Daily Schedule
+              </p>
+              <h2
+                class="text-5xl font-extrabold tracking-tight text-on-surface"
+                id="view-title"
+              >
+                Today's Appointments
+              </h2>
+              <p
+                class="text-on-surface-variant mt-2 text-lg"
+                id="view-subtitle"
+              >
+                Thursday, October 24th, 2024
+              </p>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div
+              class="bg-surface-container-low px-6 py-4 rounded-lg flex flex-col items-end"
+            >
+              <span
+                class="text-on-surface-variant text-xs uppercase tracking-widest"
+                >Total Bookings</span
+              >
+              <span class="text-3xl font-black text-on-surface">12</span>
+            </div>
+            <div
+              class="bg-surface-container-low px-6 py-4 rounded-lg flex flex-col items-end border-l-4 border-primary"
+            >
+              <span
+                class="text-on-surface-variant text-xs uppercase tracking-widest"
+                >Est. Revenue</span
+              >
+              <span class="text-3xl font-black text-primary">$485.00</span>
+            </div>
+          </div>
+        </div>
+        <!-- List of Appointments -->
+        <div class="space-y-4" id="appointments-list">
+          <!-- Appointment 1: In Progress -->
+          <div
+            class="appointment-card group relative bg-surface-container-high hover:bg-surface-bright p-8 rounded-lg transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6"
+          >
+            <div class="flex flex-col md:flex-row md:items-center gap-12">
+              <div class="flex flex-col min-w-[80px]">
+                <span class="text-3xl font-black text-on-surface leading-none"
+                  >10:00</span
+                >
+                <span
+                  class="text-sm font-medium text-on-surface-variant tracking-widest uppercase mt-1"
+                  >10:45 AM</span
+                >
+              </div>
+              <div
+                class="h-12 w-[1px] bg-outline-variant/30 hidden md:block"
+              ></div>
+              <div>
+                <h3
+                  class="text-2xl font-bold text-on-surface group-hover:text-primary transition-colors"
+                >
+                  Julian Velez
+                </h3>
+                <p class="text-on-surface-variant font-medium mt-1">
+                  Signature Fade + Beard Sculpt
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-6 relative">
+              <div
+                class="status-badge flex items-center gap-2 px-4 py-2 rounded-full bg-tertiary/10 border border-tertiary/20"
+              >
+                <span
+                  class="w-2 h-2 rounded-full bg-tertiary animate-pulse"
+                ></span>
+                <span
+                  class="text-tertiary text-xs font-bold uppercase tracking-widest"
+                  >In Progress</span
+                >
+              </div>
+              <button
+                class="flex items-center gap-2 px-4 py-2 rounded-full border border-outline-variant/30 hover:bg-surface-variant text-on-surface text-xs font-bold uppercase tracking-widest transition-all active:scale-95"
+              >
+                <span class="material-symbols-outlined text-sm">visibility</span
+                >Details</button
+              ><button
+                class="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-on-primary text-xs font-bold uppercase tracking-widest transition-transform active:scale-95"
+                onclick="this.classList.add('btn-loading'); setTimeout(() =&gt; { showToast('Appointment completed'); this.remove(); }, 800)"
+              >
+                <span
+                  class="material-symbols-outlined text-sm"
+                  data-icon="check_circle"
+                  >check_circle</span
+                >Complete
+              </button>
+            </div>
+          </div>
+          <!-- Appointment 2: Pending -->
+          <div
+            class="appointment-card group relative bg-surface-container p-8 rounded-lg transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:translate-x-2"
+          >
+            <div class="flex flex-col md:flex-row md:items-center gap-12">
+              <div class="flex flex-col min-w-[80px]">
+                <span
+                  class="text-3xl font-black text-on-surface/80 leading-none"
+                  >11:00</span
+                >
+                <span
+                  class="text-sm font-medium text-on-surface-variant tracking-widest uppercase mt-1"
+                  >11:30 AM</span
+                >
+              </div>
+              <div
+                class="h-12 w-[1px] bg-outline-variant/30 hidden md:block"
+              ></div>
+              <div>
+                <h3 class="text-2xl font-bold text-on-surface">
+                  Marcus Thorne
+                </h3>
+                <p class="text-on-surface-variant font-medium mt-1">
+                  Classic Scissors Cut
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-6 relative">
+              <div
+                class="status-badge flex items-center gap-2 px-4 py-2 rounded-full bg-secondary-container/50"
+              >
+                <span class="w-2 h-2 rounded-full bg-on-surface-variant"></span>
+                <span
+                  class="text-on-surface-variant text-xs font-bold uppercase tracking-widest"
+                  >Confirmed</span
+                >
+              </div>
+              <button
+                class="flex items-center gap-2 px-4 py-2 rounded-full border border-outline-variant/30 hover:bg-surface-variant text-on-surface text-xs font-bold uppercase tracking-widest transition-all active:scale-95"
+              >
+                <span class="material-symbols-outlined text-sm">visibility</span
+                >Details</button
+              ><button
+                class="flex items-center gap-2 px-4 py-2 rounded-full bg-tertiary text-on-tertiary text-xs font-bold uppercase tracking-widest transition-transform active:scale-95"
+                onclick="this.classList.add('btn-loading'); setTimeout(() =&gt; { showToast('Appointment started'); this.remove(); }, 800)"
+              >
+                <span
+                  class="material-symbols-outlined text-sm"
+                  data-icon="play_arrow"
+                  >play_arrow</span
+                >Start
+              </button>
+            </div>
+          </div>
+          <!-- Appointment 3: Pending -->
+          <div
+            class="appointment-card group relative bg-surface-container p-8 rounded-lg transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:translate-x-2"
+          >
+            <div class="flex flex-col md:flex-row md:items-center gap-12">
+              <div class="flex flex-col min-w-[80px]">
+                <span
+                  class="text-3xl font-black text-on-surface/80 leading-none"
+                  >11:45</span
+                >
+                <span
+                  class="text-sm font-medium text-on-surface-variant tracking-widest uppercase mt-1"
+                  >12:45 PM</span
+                >
+              </div>
+              <div
+                class="h-12 w-[1px] bg-outline-variant/30 hidden md:block"
+              ></div>
+              <div>
+                <h3 class="text-2xl font-bold text-on-surface">
+                  Elliott Sterling
+                </h3>
+                <p class="text-on-surface-variant font-medium mt-1">
+                  The Atelier Full Service
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-6 relative">
+              <div
+                class="status-badge flex items-center gap-2 px-4 py-2 rounded-full bg-secondary-container/50"
+              >
+                <span class="w-2 h-2 rounded-full bg-on-surface-variant"></span>
+                <span
+                  class="text-on-surface-variant text-xs font-bold uppercase tracking-widest"
+                  >Confirmed</span
+                >
+              </div>
+              <button
+                class="flex items-center gap-2 px-4 py-2 rounded-full border border-outline-variant/30 hover:bg-surface-variant text-on-surface text-xs font-bold uppercase tracking-widest transition-all active:scale-95"
+              >
+                <span class="material-symbols-outlined text-sm">visibility</span
+                >Details</button
+              ><button
+                class="flex items-center gap-2 px-4 py-2 rounded-full bg-tertiary text-on-tertiary text-xs font-bold uppercase tracking-widest transition-transform active:scale-95"
+                onclick="this.classList.add('btn-loading'); setTimeout(() =&gt; { showToast('Appointment started'); this.remove(); }, 800)"
+              >
+                <span
+                  class="material-symbols-outlined text-sm"
+                  data-icon="play_arrow"
+                  >play_arrow</span
+                >Start
+              </button>
+            </div>
+          </div>
+          <!-- Appointment 4: Completed -->
+          <div
+            class="appointment-card group relative bg-surface-container-lowest opacity-70 p-8 rounded-lg transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6"
+          >
+            <div class="flex flex-col md:flex-row md:items-center gap-12">
+              <div class="flex flex-col min-w-[80px]">
+                <span
+                  class="text-3xl font-black text-on-surface-variant leading-none"
+                  >09:00</span
+                >
+                <span
+                  class="text-sm font-medium text-on-surface-variant tracking-widest uppercase mt-1"
+                  >09:45 AM</span
+                >
+              </div>
+              <div
+                class="h-12 w-[1px] bg-outline-variant/30 hidden md:block"
+              ></div>
+              <div>
+                <h3
+                  class="text-2xl font-bold text-on-surface-variant line-through"
+                >
+                  Simon Hayes
+                </h3>
+                <p class="text-on-surface-variant font-medium mt-1">
+                  Hot Towel Shave + Lining
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-6 relative">
+              <div
+                class="status-badge flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20"
+              >
+                <button
+                  class="flex items-center gap-2 px-4 py-2 rounded-full border border-outline-variant/30 hover:bg-surface-variant text-on-surface-variant text-xs font-bold uppercase tracking-widest transition-all active:scale-95 mr-4"
+                >
+                  <span class="material-symbols-outlined text-sm"
+                    >visibility</span
+                  >Details
+                </button>
+                <span
+                  class="material-symbols-outlined text-primary text-xs"
+                  data-icon="check_circle"
+                  style="font-variation-settings: &quot;FILL&quot; 1"
+                  >check_circle</span
+                >
+                <span
+                  class="text-primary text-xs font-bold uppercase tracking-widest"
+                  >Completed</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Success Toast -->
+    <div
+      class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-primary text-on-primary px-8 py-4 rounded-xl font-bold shadow-2xl flex items-center gap-3"
+      id="toast"
+    >
+      <span
+        class="material-symbols-outlined"
+        data-icon="check_circle"
+        style="font-variation-settings: &quot;FILL&quot; 1"
+        >check_circle</span
+      >
+      <span id="toast-message">Appointment started successfully</span>
+    </div>
+    <script>
+      const todayStr = "2024-10-24";
+      const datePicker = document.getElementById("appointment-date-picker");
+      const viewTitle = document.getElementById("view-title");
+      const viewSubtitle = document.getElementById("view-subtitle");
+
+      function formatDateDisplay(dateStr) {
+        const options = {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        };
+        const date = new Date(dateStr + "T00:00:00");
+        return date.toLocaleDateString("en-US", options);
+      }
+
+      function handleDateChange(newDate) {
+        if (newDate === todayStr) {
+          viewTitle.textContent = "Today's Appointments";
+        } else {
+          const formattedDate = new Date(
+            newDate + "T00:00:00",
+          ).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          viewTitle.textContent = `Appointments - ${formattedDate}`;
+        }
+        viewSubtitle.textContent = formatDateDisplay(newDate);
+
+        // Visual feedback for "loading" new data
+        const list = document.getElementById("appointments-list");
+        list.style.opacity = "0.5";
+        setTimeout(() => {
+          list.style.opacity = "1";
+        }, 300);
+      }
+
+      function navigateDate(days) {
+        const currentDate = new Date(datePicker.value + "T00:00:00");
+        currentDate.setDate(currentDate.getDate() + days);
+        const nextDateStr = currentDate.toISOString().split("T")[0];
+        datePicker.value = nextDateStr;
+        handleDateChange(nextDateStr);
+      }
+
+      function setToday() {
+        datePicker.value = todayStr;
+        handleDateChange(todayStr);
+      }
+
+      function toggleDropdown(button) {
+        // Close all other dropdowns
+        document.querySelectorAll(".appointment-dropdown").forEach((d) => {
+          if (d !== button.nextElementSibling) d.classList.remove("show");
+        });
+        button.nextElementSibling.classList.toggle("show");
+      }
+
+      // Close dropdowns on outside click
+      window.onclick = function (event) {
+        if (!event.target.closest(".dropdown-container")) {
+          document
+            .querySelectorAll(".appointment-dropdown")
+            .forEach((d) => d.classList.remove("show"));
+        }
+      };
+
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        const msg = document.getElementById("toast-message");
+        msg.textContent = message;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 3000);
+      }
+
+      function updateStatus(option, status) {
+        const card = option.closest(".appointment-card");
+        const badge = card.querySelector(".status-badge");
+        const dropdown = option.parentElement;
+
+        dropdown.classList.remove("show");
+
+        if (status === "In Progress") {
+          badge.className =
+            "status-badge flex items-center gap-2 px-4 py-2 rounded-full bg-tertiary/10 border border-tertiary/20";
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span><span class="text-tertiary text-xs font-bold uppercase tracking-widest">In Progress</span>`;
+          card.classList.remove("opacity-70", "bg-surface-container-lowest");
+          card.classList.add("bg-surface-container-high");
+          showToast("Appointment started");
+        } else if (status === "Completed") {
+          badge.className =
+            "status-badge flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20";
+          badge.innerHTML = `<span class="material-symbols-outlined text-primary text-xs" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span><span class="text-primary text-xs font-bold uppercase tracking-widest">Completed</span>`;
+          card.classList.add("opacity-70", "bg-surface-container-lowest");
+          card.querySelector("h3").classList.add("line-through");
+          showToast("Appointment completed");
+        }
+      }
+    </script>
+  </body>
+</html>

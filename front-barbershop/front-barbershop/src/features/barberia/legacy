@@ -1,0 +1,320 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface": "#e5e2e1",
+              outline: "#99907c",
+              "inverse-surface": "#e5e2e1",
+              "surface-container-low": "#1c1b1b",
+              "surface-bright": "#3a3939",
+              "on-primary-fixed": "#241a00",
+              "primary-fixed": "#ffe088",
+              background: "#131313",
+              "on-secondary-fixed": "#1c1b1b",
+              "on-secondary": "#313030",
+              "surface-container-high": "#2a2a2a",
+              secondary: "#c8c6c5",
+              "error-container": "#93000a",
+              "tertiary-fixed": "#a2eeff",
+              "on-error": "#690005",
+              "secondary-container": "#474746",
+              "secondary-fixed": "#e5e2e1",
+              "primary-fixed-dim": "#e9c349",
+              "surface-variant": "#353534",
+              "primary-container": "#d4af37",
+              "outline-variant": "#4d4635",
+              "on-background": "#e5e2e1",
+              primary: "#f2ca50",
+              "on-tertiary-fixed": "#001f25",
+              "secondary-fixed-dim": "#c8c6c5",
+              "on-secondary-container": "#b7b4b4",
+              "surface-container-lowest": "#0e0e0e",
+              error: "#ffb4ab",
+              "tertiary-container": "#00c4de",
+              "on-primary-container": "#554300",
+              "inverse-primary": "#735c00",
+              "surface-container-highest": "#353534",
+              "inverse-on-surface": "#313030",
+              "on-tertiary": "#00363e",
+              "surface-dim": "#131313",
+              "on-error-container": "#ffdad6",
+              "on-surface-variant": "#d0c5af",
+              "on-tertiary-container": "#004c57",
+              "on-primary-fixed-variant": "#574500",
+              "on-tertiary-fixed-variant": "#004e5a",
+              "on-secondary-fixed-variant": "#474746",
+              "tertiary-fixed-dim": "#2fd9f4",
+              "on-primary": "#3c2f00",
+              "surface-container": "#201f1f",
+              tertiary: "#3de1fc",
+              surface: "#131313",
+              "surface-tint": "#e9c349",
+            },
+            borderRadius: {
+              DEFAULT: "1rem",
+              lg: "2rem",
+              xl: "3rem",
+              full: "9999px",
+            },
+            fontFamily: {
+              headline: ["Manrope"],
+              body: ["Inter"],
+              label: ["Inter"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #131313;
+        color: #e5e2e1;
+      }
+      h1,
+      h2,
+      h3,
+      .brand-font {
+        font-family: "Manrope", sans-serif;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background min-h-screen flex items-center justify-center p-4 md:p-8"
+  >
+    <!-- Modal Backdrop -->
+    <div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-0"></div>
+    <!-- Main Settings Modal -->
+    <div
+      class="relative z-10 w-full max-w-6xl h-[921px] flex flex-col md:flex-row bg-surface-dim rounded-lg shadow-2xl overflow-hidden border border-outline-variant/10"
+    >
+      <!-- Left Sidebar (SideNavBar) -->
+      <aside
+        class="bg-[#0e0e0e] h-full w-full md:w-80 flex-shrink-0 flex flex-col py-10 px-6 font-['Manrope'] tracking-tight"
+      >
+        <!-- Header/Logo Area -->
+        <div class="flex items-center gap-4 mb-12 px-2">
+          <div
+            class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-[#f2ca50]"
+          >
+            <img
+              alt="Barber shop logo"
+              class="w-full h-full object-cover"
+              data-alt="Modern minimalist barber shop logo with scissors and a straight razor on a dark textured background"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7teb9djzoNm7Bd-44StE3gXYLBV-Nb6LD-WSkw0K7mueXsMri92p7oYvuGKC97oW1woPOunhyoau2Bi2zBTZ12Lwt_P_gCd01_9mo8Dgu7We2shV4knPB8-gxusxuomSYUKAQFmqBQLeI_cMDIyeosXiZKraBPqQDM2lrqLEUjK9vu3I5uuCM58N8K1_Sfn-0E2I0dfA6e0Jex65vqTYroMmT5oDPjLzJQfLVr9F5zTRNHGwvJLd29Z7b2bobKrHJkNhavWtXg2Gn"
+            />
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-[#f2ca50]">
+              The Midnight Atelier
+            </h2>
+            <p
+              class="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-60"
+            >
+              Management Settings
+            </p>
+          </div>
+        </div>
+        <!-- Navigation Items -->
+        <nav class="flex-grow space-y-2">
+          <a
+            class="flex items-center gap-3 px-5 py-4 text-[#f2ca50] bg-[#1c1b1b] rounded-full transition-all active:scale-95 duration-150"
+            href="#"
+          >
+            <span class="material-symbols-outlined" data-icon="storefront"
+              >storefront</span
+            >
+            <span class="font-semibold">Shop Information</span>
+          </a>
+          <a
+            class="flex items-center gap-3 px-5 py-4 text-[#e5e2e1] opacity-70 hover:bg-[#2a2a2a] hover:opacity-100 transition-all active:scale-95 duration-150"
+            href="#"
+          >
+            <span class="material-symbols-outlined" data-icon="security"
+              >security</span
+            >
+            <span class="font-medium">Privacy</span>
+          </a>
+          <a
+            class="flex items-center gap-3 px-5 py-4 text-[#e5e2e1] opacity-70 hover:bg-[#2a2a2a] hover:opacity-100 transition-all active:scale-95 duration-150"
+            href="#"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="gallery_thumbnail"
+              >gallery_thumbnail</span
+            >
+            <span class="font-medium">Gallery</span>
+          </a>
+        </nav>
+        <!-- Bottom Action -->
+        <div class="mt-auto px-4 py-4 rounded-lg bg-surface-container-low/50">
+          <p class="text-xs text-on-surface-variant mb-2">
+            Logged in as Administrator
+          </p>
+          <div class="flex items-center gap-3">
+            <div
+              class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-sm">person</span>
+            </div>
+            <span class="text-sm font-medium">Julian Thorne</span>
+          </div>
+        </div>
+      </aside>
+      <!-- Main Content Area -->
+      <main class="flex-grow overflow-y-auto bg-surface-dim relative">
+        <!-- Top App Bar (Contextual) -->
+        <header
+          class="flex justify-between items-center px-8 w-full h-16 sticky top-0 bg-surface-dim/80 backdrop-blur-md z-20"
+        >
+          <span
+            class="font-['Manrope'] uppercase tracking-widest text-[10px] text-on-surface-variant"
+            >Profile Management</span
+          >
+          <button
+            class="text-[#e5e2e1] hover:text-[#f2ca50] transition-colors active:opacity-80"
+          >
+            <span class="material-symbols-outlined" data-icon="close"
+              >close</span
+            >
+          </button>
+        </header>
+        <div class="px-8 md:px-12 py-8 max-w-4xl mx-auto">
+          <!-- Headline Section -->
+          <div class="mb-12">
+            <h1
+              class="text-4xl font-extrabold text-on-surface tracking-tight mb-2"
+            >
+              Settings
+            </h1>
+            <p class="text-on-surface-variant text-lg">
+              Manage your shop profile and public appearance
+            </p>
+          </div>
+          <!-- Bento-style Content Grid -->
+          <form class="space-y-12 pb-20">
+            <!-- Profile Image Section -->
+            <!-- General Info Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-2">
+                <label
+                  class="block text-[10px] uppercase tracking-widest text-primary font-bold ml-1"
+                  >Shop Name</label
+                >
+                <input
+                  class="w-full bg-surface-container border-none rounded-full px-6 py-4 text-on-surface focus:ring-2 focus:ring-primary/50 placeholder:text-on-surface-variant/30"
+                  type="text"
+                  value="The Midnight Atelier"
+                />
+              </div>
+              <div class="space-y-2">
+                <label
+                  class="block text-[10px] uppercase tracking-widest text-primary font-bold ml-1"
+                  >Phone Number</label
+                >
+                <input
+                  class="w-full bg-surface-container border-none rounded-full px-6 py-4 text-on-surface focus:ring-2 focus:ring-primary/50"
+                  type="tel"
+                  value="+1 (555) 123-4567"
+                />
+              </div>
+              <div class="md:col-span-2 space-y-2">
+                <label
+                  class="block text-[10px] uppercase tracking-widest text-primary font-bold ml-1"
+                  >Email Address</label
+                >
+                <input
+                  class="w-full bg-surface-container border-none rounded-full px-6 py-4 text-on-surface focus:ring-2 focus:ring-primary/50"
+                  type="email"
+                  value="contact@midnightatelier.com"
+                />
+              </div>
+              <div class="md:col-span-2 space-y-2">
+                <label
+                  class="block text-[10px] uppercase tracking-widest text-primary font-bold ml-1"
+                  >Description</label
+                >
+                <textarea
+                  class="w-full bg-surface-container border-none rounded-lg px-6 py-4 text-on-surface focus:ring-2 focus:ring-primary/50 resize-none"
+                  rows="4"
+                >
+Luxury grooming lounge specializing in classic cuts and modern styling. Experience the art of precision in an atmosphere designed for the discerning gentleman.</textarea
+                >
+              </div>
+              <div class="md:col-span-2 space-y-2">
+                <label
+                  class="block text-[10px] uppercase tracking-widest text-primary font-bold ml-1"
+                  >Shop Address</label
+                >
+                <div class="relative">
+                  <input
+                    class="w-full bg-surface-container border-none rounded-full px-6 py-4 text-on-surface focus:ring-2 focus:ring-primary/50 pr-12"
+                    type="text"
+                    value="128 Velvet Oak Blvd, Suite 400, Obsidian District"
+                  />
+                  <span
+                    class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
+                    >location_on</span
+                  >
+                </div>
+              </div>
+            </div>
+            <!-- Sticky Footer Actions -->
+            <div
+              class="pt-8 flex items-center justify-end gap-6 border-t border-outline-variant/10"
+            >
+              <button
+                class="text-on-surface-variant hover:text-on-surface font-medium transition-colors"
+                type="button"
+              >
+                Discard Changes
+              </button>
+              <button
+                class="bg-[#f2ca50] text-[#3c2f00] px-10 py-4 rounded-full font-bold text-lg shadow-xl shadow-primary/10 hover:scale-105 active:scale-95 transition-all"
+                type="submit"
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+    <!-- Background Decorative Elements -->
+    <div
+      class="fixed top-0 right-0 w-1/2 h-1/2 bg-primary/5 blur-[120px] rounded-full pointer-events-none -z-10"
+    ></div>
+    <div
+      class="fixed bottom-0 left-0 w-1/3 h-1/3 bg-tertiary/5 blur-[100px] rounded-full pointer-events-none -z-10"
+    ></div>
+  </body>
+</html>

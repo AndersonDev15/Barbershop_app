@@ -18,19 +18,17 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     List<Reservation> findByBarberIdAndDate(Long barberId, LocalDate date);
     //verificar solapamiento
     @Query("""
-    SELECT COUNT(r) > 0
-    FROM Reservation r
-    WHERE r.barber.id = :barberId
-      AND r.date = :date
-      AND r.status IN :statuses
-      AND (r.startTime < :end AND r.endTime > :start)
+    SELECT COUNT(r) > 0 FROM Reservation r
+    WHERE r.client.id = :clientId
+    AND r.date = :date
+    AND r.startTime < :newEndTime
+    AND r.endTime > :newStartTime
 """)
-    boolean existsOverlap(
-            Long barberId,
+    boolean existsOverlappingReservation(
+            Long clientId,
             LocalDate date,
-            LocalTime start,
-            LocalTime end,
-            Set<ReservationStatus> statuses
+            LocalTime newStartTime,
+            LocalTime newEndTime
     );
     @Query("""
     SELECT r

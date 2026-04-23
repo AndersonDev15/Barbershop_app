@@ -67,8 +67,17 @@ public class ReservationService {
 
         Client client = clientService.getClientByUserUuid(userUuid);
 
+
+
         ServiceCalculationResult calculation =
                 reservationCalculationService.calculateServices(request.subcategoryIds());
+
+        validateClientNoOverlap(
+                client.getId(),
+                request.date(),
+                request.startTime(),
+                calculation.totalDuration()
+        );
 
         slotValidationService.validateTimeSlot(
                 validation.barber().getId(),
@@ -218,8 +227,8 @@ public class ReservationService {
 
         return reservationRepository.findReservationsStartingBetween(
                 LocalDate.now(),
-                now.plusMinutes(18),
-                now.plusMinutes(22)
+                now.plusMinutes(20),
+                now.plusMinutes(21)
         );
     }
 
@@ -236,6 +245,26 @@ public class ReservationService {
             return Duration.ZERO;
         }
         return Duration.between(reservation.getStartTime(), reservation.getEndTime());
+    }
+
+    private void validateClientNoOverlap(
+            Long clientId,
+            LocalDate date,
+            LocalTime startTime,
+            int durationMinutes
+    ) {
+        LocalTime endTime = startTime.plusMinutes(durationMinutes);
+
+        boolean exists = reservationRepository.existsOverlappingReservation(
+                clientId,
+                date,
+                startTime,
+                endTime
+        );
+
+        if (exists) {
+            throw new ValidationException("Ya tienes una reserva en ese horario");
+        }
     }
 
 

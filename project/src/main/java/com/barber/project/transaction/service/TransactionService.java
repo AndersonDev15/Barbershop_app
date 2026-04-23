@@ -203,6 +203,20 @@ public class TransactionService {
                 "Tu pago de " + transaction.getTotalAmount() + " fue confirmado.",
                 transaction.getReservation().getId()
         );
+
+        // Notificar al BARBER SHOP
+        notificationService.createNotification(
+                transaction.getBarber().getBarberShop().getUser().getUserUuid(),
+                NotificationType.PAYMENT_CONFIRMED,
+                "Pago recibido",
+                "El barbero "
+                        + transaction.getBarber().getUser().getFirstName() + " "
+                        + transaction.getBarber().getUser().getLastName()
+                        + " recibió un pago de $" + transaction.getTotalAmount()
+                        + " (comisión: $" + transaction.getBarberCommission() + ")"
+                        + " el " + transaction.getReservation().getDate(),
+                transaction.getReservation().getId()
+        );
     }
 
     private Transaction buildTransaction(Reservation reservation, Barber barber,
