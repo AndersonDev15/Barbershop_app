@@ -2,6 +2,7 @@ package com.auth.server.Exceptions;
 
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ValidationException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,6 +69,23 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    // 409 - Validación de negocio (correo duplicado, token usado, etc.)
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiErrorResponse> handleValidationException(
+            ValidationException ex,
+            HttpServletRequest request
+    ) {
+        ApiErrorResponse error = new ApiErrorResponse(
+                409,
+                "CONFLICT",
+                ex.getMessage(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     // @Valid errors

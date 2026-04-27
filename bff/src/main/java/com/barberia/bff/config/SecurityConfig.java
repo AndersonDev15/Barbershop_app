@@ -40,6 +40,13 @@ public class SecurityConfig {
         http
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/login", "/oauth2/**", "/logout", "/actuator/health", "/auth/status").permitAll()
+                        .pathMatchers(
+                                "/api/auth/register",
+                                "/api/auth/verify-email",
+                                "/api/auth/verify-otp",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password"
+                        ).permitAll()
                         .anyExchange().authenticated()
                 )
                 .oauth2Login(login -> login

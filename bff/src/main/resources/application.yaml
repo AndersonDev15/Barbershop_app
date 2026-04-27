@@ -43,6 +43,14 @@ spring:
             - TokenRelay=
             - RemoveRequestHeader=Cookie
 
+        - id: auth-server-public
+          uri: ${AUTH_SERVER_URL:http://localhost:9000}
+          predicates:
+            - Path=/api/auth/register, /api/auth/verify-email, /api/auth/forgot-password, /api/auth/verify-otp, /api/auth/reset-password
+          filters:
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin, RETAIN_FIRST
+            - RemoveRequestHeader=Cookie
+
         - id: auth-server-auth
           uri: ${AUTH_SERVER_URL:http://localhost:9000}
           predicates:
@@ -80,5 +88,5 @@ spring:
 
 logging:
   level:
-    org.springframework.security: ${LOG_LEVEL_SECURITY:DEBUG}
-    org.springframework.cloud.gateway: ${LOG_LEVEL_GATEWAY:DEBUG}
+    org.springframework.cloud.gateway.filter: TRACE
+    org.springframework.security.web: TRACE

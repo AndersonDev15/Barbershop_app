@@ -3,6 +3,7 @@ package com.auth.server.Controller;
 import com.auth.server.Dto.Request.ChangePasswordRequest;
 import com.auth.server.Dto.Request.ForgotPasswordRequest;
 import com.auth.server.Dto.Request.ResetPasswordRequest;
+import com.auth.server.Dto.Request.VerifyOtpRequest;
 import com.auth.server.Service.PasswordManagementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,13 @@ public class PasswordResetController {
     public ResponseEntity<Void> forgotPassword(
             @Valid @RequestBody ForgotPasswordRequest request) {
         passwordManagementService.forgotPassword(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<Void> verifyOtp(
+            @Valid @RequestBody VerifyOtpRequest request) {
+        passwordManagementService.verifyOtp(request);
         return ResponseEntity.noContent().build();
     }
 

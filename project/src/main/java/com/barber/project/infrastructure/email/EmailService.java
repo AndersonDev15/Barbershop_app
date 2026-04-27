@@ -21,10 +21,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -173,109 +176,128 @@ public class EmailService {
     // ---- RESERVACION ---
     //agendar una cita (barbero)
     @Async
-    public void sendNewReservationToBarber(ReservationEmailData data){
-
+    public void sendNewReservationToBarber(ReservationEmailData data) {
         String subject = "Nueva reserva de " + data.clientName();
 
-        String servicesText = formatServicesListWithPrices(data.services());
-
-        String body = String.format(
-                """
-                Hola %s,
-                
-                Tienes una nueva reserva.
-                
-                Cliente: %s
-                Teléfono: %s
-                
-                Fecha: %s
-                Hora: %s
-                Duración estimada: %d minutos
-                
-                Servicios:
-                %s
-                
-                Total: $%.2f
-                
-                Barbería:
-                %s
-                Dirección: %s
-                
-                Saludos,
-                Sistema de Reservas
-                """,
+        String bodyContent = String.format("""
+        <p style="margin:0 0 16px;">Hola <strong style="color:#e5e2e1;">%s</strong>,</p>
+        <p style="margin:0 0 28px;">Tienes una nueva reserva confirmada.</p>
+        
+        <!-- Info card -->
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:24px;">
+          <tr><td style="padding:18px 20px;">
+            <p style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Cliente</p>
+            <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            <p style="margin:4px 0 0;font-size:13px;color:#d0c5af;">%s</p>
+          </td></tr>
+        </table>
+        
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:24px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Fecha</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Hora</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+          </tr>
+        </table>
+        
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:24px;">
+          <tr><td style="padding:18px 20px;">
+            <p style="margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Servicios</p>
+            %s
+            <div style="height:1px;background:rgba(255,255,255,0.05);margin:12px 0;"></div>
+            <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Total &nbsp;
+              <strong style="font-size:16px;color:#f2ca50;">$%s COP</strong>
+            </p>
+          </td></tr>
+        </table>
+        """,
                 data.barberName(),
-                data.clientName(),
-                data.clientPhone(),
-                data.date(),
-                data.startTime(),
-                data.totalDuration(),
-                servicesText,
-                data.totalPrice(),
-                data.barberShopName(),
-                data.barberShopAddress()
+                data.clientName(), data.clientPhone(),
+                data.date(), data.startTime(),
+                formatServicesHtml(data.services()),
+                formatPrice(data.totalPrice())
         );
 
-        sendEmail(data.barberEmail(), subject, body);
+        String html = buildEmailTemplate(
+                "Nueva Reserva",
+                data.barberShopName(),
+                "Tienes una nueva cita",
+                bodyContent
+        );
+
+        sendEmail(data.barberEmail(), subject, html);
     }
     //cita agendada cliente
     @Async
     public void sendReservationConfirmationToClient(ReservationEmailData data) {
-        String subject = "Nueva Reserva de " + data.clientName();
-        //formatear la lista de servicios
-        String serviceList = formatServicesListWithPrices(data.services());
-        String cancellationPolicy = getCancellationPolicy();
-        String body = String.format(
-                """
-                Hola %s,
-                
-                ¡Tu reserva ha sido confirmada exitosamente!
-                
-                Barbero: %s
-                Fecha: %s
-                Hora: %s
-                Duración estimada: %d minutos
-                Ubicación: %s
-                
-                Servicios agendados:
-                %s
-                
-                Total a pagar: $%.2f
-                
-                Información de contacto del barbero:
-                %s
-                Email: %s
-                
-                Instrucciones importantes:
-                1. Llega 5 minutos antes
-                2. Trae este correo como comprobante
-                3. %s
-                
-                Número de reserva: #%d
-                
-                ¡Te esperamos!
-                
-                Equipo de %s
-                """,
+        String subject = "Reserva confirmada #" + data.reservationId();
+
+        String bodyContent = String.format("""
+        <p style="margin:0 0 16px;">Hola <strong style="color:#e5e2e1;">%s</strong>,</p>
+        <p style="margin:0 0 28px;">¡Tu reserva ha sido confirmada exitosamente!</p>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Barbero</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Ubicación</p>
+              <p style="margin:0;font-size:13px;color:#d0c5af;">%s</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Fecha</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Hora</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr><td style="padding:18px 20px;">
+            <p style="margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Servicios</p>
+            %s
+            <div style="height:1px;background:rgba(255,255,255,0.05);margin:12px 0;"></div>
+            <p style="margin:0;font-size:13px;color:#99907c;">Total &nbsp;<strong style="font-size:16px;color:#f2ca50;">$%s COP</strong></p>
+          </td></tr>
+        </table>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr><td style="padding:18px 20px;">
+            <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Número de reserva</p>
+            <p style="margin:0;font-size:15px;font-weight:700;color:#f2ca50;">#%d</p>
+          </td></tr>
+        </table>
+
+        <p style="margin:0;font-size:13px;color:#99907c;">• Llega 5 minutos antes &nbsp;•&nbsp; Trae este correo como comprobante &nbsp;•&nbsp; %s</p>
+        """,
                 data.clientName(),
-                data.barberName(),
-                data.date(),
-                data.startTime(),
-                data.totalDuration(),
-                data.barberShopAddress(),
-                serviceList,
-                data.totalPrice(),
-                data.barberName(),
-                data.barberEmail(),
-                cancellationPolicy,
+                data.barberName(), data.barberShopAddress(),
+                data.date(), data.startTime(),
+                formatServicesHtml(data.services()),
+                formatPrice(data.totalPrice()),
                 data.reservationId(),
-                data.barberShopName()
-
-
+                getCancellationPolicy()
         );
-        //enviar email
 
-        sendEmail(data.clientEmail(),subject,body);
+        String html = buildEmailTemplate(
+                data.barberShopName(), "Reserva Confirmada", "¡Te esperamos!", bodyContent
+        );
+        sendEmail(data.clientEmail(), subject, html);
     }
 
     //cambio de estado al los clientes
@@ -283,122 +305,144 @@ public class EmailService {
     public void sendStatusChangeNotification(ReservationEmailData data,
                                              ReservationStatus oldStatus,
                                              ReservationStatus newStatus) {
-
-
-
         String subject = getStatusChangeSubject(newStatus, data.reservationId());
-        String statusMessage = getStatusChangeMessage(newStatus);
-        String instructions = getAdditionalInstructions(newStatus);
-        String serviceList = formatServicesListWithPrices(data.services());
 
-        String body = String.format(
-                """
-                Hola %s,
-                
-                %s
-                
-                Detalles de la reserva:
-                - Número: #%d
-                - Fecha: %s
-                - Hora: %s
-                
-                Servicios:
-                %s
-                
-                Total: $%.2f
-                Duración estimada: %d min
-                
-                Cambio de estado:
-                - Estado anterior: %s
-                - Estado nuevo: %s
-                
-                %s
-                
-                Barbero:
-                - %s
-                - Email: %s
-                
-                Barbería:
-                - %s
-                - Dirección: %s
-                
-                Gracias por usar nuestra plataforma.
-                """,
+        String bodyContent = String.format("""
+        <p style="margin:0 0 16px;">Hola <strong style="color:#e5e2e1;">%s</strong>,</p>
+        <p style="margin:0 0 28px;">%s</p>
 
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Estado anterior</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#d0c5af;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Estado nuevo</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#f2ca50;">%s</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Fecha</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Hora</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr><td style="padding:18px 20px;">
+            <p style="margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Servicios</p>
+            %s
+            <div style="height:1px;background:rgba(255,255,255,0.05);margin:12px 0;"></div>
+            <p style="margin:0;font-size:13px;color:#99907c;">Total &nbsp;<strong style="font-size:16px;color:#f2ca50;">$%s COP</strong></p>
+          </td></tr>
+        </table>
+
+        <p style="margin:0 0 8px;font-size:13px;color:#d0c5af;">%s</p>
+        """,
                 data.clientName(),
-                statusMessage,
-                data.reservationId(),
-                data.date(),
-                data.startTime(),
-                serviceList,
-                data.totalPrice(),
-                data.totalDuration(),
-                translateStatus(oldStatus),
-                translateStatus(newStatus),
-                instructions,
-                data.barberName(),
-                data.barberEmail(),
-                data.barberShopName(),
-                data.barberShopAddress()
+                getStatusChangeMessage(newStatus),
+                translateStatus(oldStatus), translateStatus(newStatus),
+                data.date(), data.startTime(),
+                formatServicesHtml(data.services()),
+                formatPrice(data.totalPrice()),
+                getAdditionalInstructions(newStatus)
         );
 
-        sendEmail(data.clientEmail(), subject, body);
+        String html = buildEmailTemplate(
+                data.barberShopName(), "Actualización de Reserva", "#" + data.reservationId(), bodyContent
+        );
+        sendEmail(data.clientEmail(), subject, html);
     }
 
 
     //cancelacion de citas
     //informacion barbero
     @Async
-    public void sendReservationCancellBarber(CancellationEmailData data){
+    public void sendReservationCancellBarber(CancellationEmailData data) {
+        String subject = "Reserva cancelada por el cliente #" + data.reservationId();
 
+        String bodyContent = String.format("""
+        <p style="margin:0 0 16px;">Hola <strong style="color:#e5e2e1;">%s</strong>,</p>
+        <p style="margin:0 0 28px;">El cliente <strong style="color:#e5e2e1;">%s</strong> ha cancelado su reserva. Por favor ajusta tu agenda.</p>
 
-        String subject = "Reserva cancelada por el cliente #" +data.reservationId();
-        String body = String.format(
-                "Hola %s,\n\n" +
-                        "El cliente %s ha cancelado su reserva.\n\n" +
-                        "Detalles de la reserva: \n" +
-                        "- Fecha: %s\n" +
-                        "- Hora: %s\n" +
-                        "- Cliente: %s\n\n" +
-                        "Por favor ajusta tu agenda.\n\n" +
-                        "Saludos,\n" +
-                        "Sistema de Reservas",
-                data.barberName(),
-                data.clientName(),
-                data.date(),
-                data.startTime(),
-                data.clientName()
-
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Fecha</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Hora</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+          </tr>
+        </table>
+        """,
+                data.barberName(), data.clientName(),
+                data.date(), data.startTime()
         );
-        sendEmail(data.barberEmail(), subject, body);
+
+        String html = buildEmailTemplate(
+                "BarberOS", "Reserva Cancelada", "Cliente: " + data.clientName(), bodyContent
+        );
+        sendEmail(data.barberEmail(), subject, html);
     }
 
     //para el cliente
     @Async
-    public void sendReservationCancelClient(CancellationEmailData data){
+    public void sendReservationCancelClient(CancellationEmailData data) {
+        String subject = "Cancelación de tu reserva #" + data.reservationId();
 
+        String bodyContent = String.format("""
+        <p style="margin:0 0 16px;">Hola <strong style="color:#e5e2e1;">%s</strong>,</p>
+        <p style="margin:0 0 28px;">Tu reserva ha sido cancelada exitosamente.</p>
 
-        String subject = "Cancelacion de tu reserva # " + data.reservationId();
-        String body = String.format(
-                "Hola %s,\n\n" +
-                "Tu reserva ha sido cancelada exitosamente.\n\n" +
-                        "Detalles de la reserva cancelada:\n" +
-                        "- Barbero: %s\n" +
-                        "- Fecha: %s\n" +
-                        "- Hora: %s\n" +
-                        "- Estado anterior: %s\n" +
-                        "- Estado nuevo: CANCELADA\n\n" +
-                        "Si deseas volver a agendar, puedes hacerlo en cualquier momento.\n\n" +
-                        "Saludos,\n",
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Barbero</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Fecha</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+          </tr>
+        </table>
 
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Estado anterior</p>
+              <p style="margin:0;font-size:14px;color:#d0c5af;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Estado nuevo</p>
+              <p style="margin:0;font-size:14px;font-weight:700;color:#ffb4ab;">CANCELADA</p>
+            </td>
+          </tr>
+        </table>
+
+        <p style="margin:0;font-size:13px;color:#d0c5af;">Si deseas volver a agendar, puedes hacerlo en cualquier momento.</p>
+        """,
                 data.clientName(),
-                data.barberName(),
-                data.date(),
-                data.startTime(),
+                data.barberName(), data.date(),
                 data.oldStatus()
-
         );
-        sendEmail(data.clientEmail(),subject,body);
+
+        String html = buildEmailTemplate(
+                "BarberOS", "Reserva Cancelada", "#" + data.reservationId(), bodyContent
+        );
+        sendEmail(data.clientEmail(), subject, html);
     }
 
 
@@ -407,248 +451,337 @@ public class EmailService {
     //cliente
     @Async
     public void sendReminderClient(ReminderEmailData data) {
-
-        String servicesFormatted = formatServicesListWithPrices(data.services());
-
         String subject = "Recordatorio de tu cita #" + data.reservationId();
 
-        String body = String.format(
-                "Hola %s,\n\n" +
-                        "Este es un recordatorio de tu cita próxima en 20 minutos.\n\n" +
-                        "Detalles de la reserva:\n" +
-                        "%s\n\n" +
-                        "- Barbero: %s\n" +
-                        "- Fecha: %s\n" +
-                        "- Hora: %s\n\n" +
-                        "Te esperamos.\n\n" +
-                        "Saludos,\n" +
-                        "Sistema de Reservas",
+        String bodyContent = String.format("""
+        <p style="margin:0 0 16px;">Hola <strong style="color:#e5e2e1;">%s</strong>,</p>
+        <p style="margin:0 0 28px;">Tu cita comienza en <strong style="color:#f2ca50;">20 minutos</strong>. ¡Prepárate!</p>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Barbero</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Hora</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#f2ca50;">%s</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr><td style="padding:18px 20px;">
+            <p style="margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Servicios</p>
+            %s
+          </td></tr>
+        </table>
+        """,
                 data.clientName(),
-                servicesFormatted,
-                data.barberName(),
-                data.date(),
-                data.startTime()
+                data.barberName(), data.startTime(),
+                formatServicesHtml(data.services())
         );
 
-        sendEmail(data.clientEmail(), subject, body);
+        String html = buildEmailTemplate(
+                "BarberOS", "Recordatorio de Cita", data.date(), bodyContent
+        );
+        sendEmail(data.clientEmail(), subject, html);
     }
 
     //barbero
     @Async
     public void sendReminderBarber(ReminderEmailData data) {
-
-        String servicesFormatted = formatServicesListWithPrices(data.services());
-
         String subject = "Recordatorio: próxima cita en 20 minutos (#" + data.reservationId() + ")";
 
-        String body = String.format(
-                "Hola %s,\n\n" +
-                        "Tienes una cita proxima en 20 minutos.\n\n" +
-                        "Detalles de la reserva:\n" +
-                        "- Cliente: %s\n" +
-                        "%s\n" +
-                        "- Fecha: %s\n" +
-                        "- Hora: %s\n\n" +
-                        "Prepárate para atender.\n\n" +
-                        "Saludos,\n" +
-                        "Sistema de Reservas",
+        String bodyContent = String.format("""
+        <p style="margin:0 0 16px;">Hola <strong style="color:#e5e2e1;">%s</strong>,</p>
+        <p style="margin:0 0 28px;">Tienes una cita en <strong style="color:#f2ca50;">20 minutos</strong>. Prepárate para atender.</p>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Cliente</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Hora</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#f2ca50;">%s</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr><td style="padding:18px 20px;">
+            <p style="margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Servicios</p>
+            %s
+          </td></tr>
+        </table>
+        """,
                 data.barberName(),
-                data.clientName(),
-                servicesFormatted,
-                data.date(),
-                data.startTime()
+                data.clientName(), data.startTime(),
+                formatServicesHtml(data.services())
         );
 
-        sendEmail(data.barberEmail(), subject, body);
+        String html = buildEmailTemplate(
+                "BarberOS", "Próxima Cita", data.date(), bodyContent
+        );
+        sendEmail(data.barberEmail(), subject, html);
     }
 
 
     // ---- TRANSACCION ---
     //email enviado al cliente
     @Async
-    public void sendTransactionConfirmationToClient(TransactionEmailData data){
-        String subject = "Confirmacion de pago # " + data.transactionCode();
-        String serviceList = formatServicesListWithPrices(data.services());
-        String formattedDate = formatDateTime(data.transactionDate());
+    public void sendTransactionConfirmationToClient(TransactionEmailData data) {
+        String subject = "Confirmación de pago #" + data.transactionCode();
 
-        String body = String.format("""
-            Hola %s,
-            
-            ¡Tu pago ha sido procesado exitosamente!
-            
-            **Detalles del pago:**
-            - ID de transacción: #%s
-            - Fecha y hora: %s
-            - Método de pago: %s
-            
-            **Información del servicio:**
-            - Barbero: %s
-            - Barbería: %s
-            - Dirección: %s
-            - Teléfono: %s
-            
-            **Servicios:**
+        String bodyContent = String.format("""
+        <p style="margin:0 0 16px;">Hola <strong style="color:#e5e2e1;">%s</strong>,</p>
+        <p style="margin:0 0 28px;">¡Tu pago ha sido procesado exitosamente!</p>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">ID Transacción</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#f2ca50;">#%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Método de pago</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Barbero</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Fecha servicio</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s %s</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr><td style="padding:18px 20px;">
+            <p style="margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Servicios</p>
             %s
-            
-            **Desglose del pago:**
-            - Subtotal servicios: $%.2f
-            - Propina: $%.2f
-            - **Total pagado: $%.2f**
-            
-            **Detalles de la reserva:**
-            - ID de reserva: #%d
-            - Fecha: %s
-            - Hora: %s
-            
-            **Para consultas:**
-            - Barbería: %s
-            - Soporte: soporte@barberapp.com
-            
-            ¡Gracias por tu preferencia!
-            
-            Atentamente,
-            El equipo de %s
-            """,
+            <div style="height:1px;background:rgba(255,255,255,0.05);margin:12px 0;"></div>
+            <table width="100%%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="font-size:13px;color:#99907c;">Subtotal</td>
+                <td align="right" style="font-size:13px;color:#d0c5af;">$%s COP</td>
+              </tr>
+              <tr>
+                <td style="font-size:13px;color:#99907c;padding-top:4px;">Propina</td>
+                <td align="right" style="font-size:13px;color:#d0c5af;padding-top:4px;">$%s COP</td>
+              </tr>
+              <tr>
+                <td style="font-size:15px;font-weight:700;color:#e5e2e1;padding-top:8px;">Total pagado</td>
+                <td align="right" style="font-size:16px;font-weight:700;color:#f2ca50;padding-top:8px;">$%s COP</td>
+              </tr>
+            </table>
+          </td></tr>
+        </table>
+        """,
                 data.clientName(),
-                data.transactionCode(),
-                formattedDate,
-                formatPaymentMethod(data.paymentMethod()),
-                data.barberName(),
-                data.barberShopName(),
-                data.barberShopAddress(),
-                data.barberShopPhone(),
-                serviceList,
-                data.totalAmount(),
-                data.tipAmount(),
-                data.totalAmount().add(data.tipAmount()),
-                data.reservationId(),
-                data.reservationDate(),
-                data.reservationTime(),
-                data.barberShopPhone(),
-                data.barberShopName());
+                data.transactionCode(), formatPaymentMethod(data.paymentMethod()),
+                data.barberName(), data.reservationDate(), data.reservationTime(),
+                formatServicesHtml(data.services()),
+                formatPrice(data.totalAmount()),
+                formatPrice(data.tipAmount()),
+                formatPrice(data.totalAmount().add(data.tipAmount()))
+        );
 
-        sendEmail(data.clientEmail(),subject,body);
+        String html = buildEmailTemplate(
+                data.barberShopName(), "Pago Confirmado", "Reserva #" + data.reservationId(), bodyContent
+        );
+        sendEmail(data.clientEmail(), subject, html);
     }
 
     @Async
-    public void sendTransactionNotificationToBarber(TransactionEmailData data){
-        String subject = "Pago recibido - Reserva # " + data.reservationId();
-        String body = String.format("""
-            Hola %s,
-            
-            Se ha procesado el pago de la siguiente reserva:
-            
-            **Cliente:**
-            - Nombre: %s
-            - Teléfono: %s
-            - Email: %s
-            
-            **Detalles del pago:**
-            - ID de transacción: #%s
-            - Fecha: %s
-            - Método: %s
-            - Total: $%.2f
-            - **Tu comisión: $%.2f**
-            - Propina: $%.2f
-            
-            **Detalles del servicio:**
-            - Fecha: %s
-            - Hora: %s
-            
-            **Ubicación:**
-            - Barbería: %s
-            - Dirección: %s
-            
-            
-            Saludos,
-            Sistema de Pagos - %s
-            """,
-                data.barberName(),
-                data.clientName(),
-                data.clientPhone(),
-                data.clientEmail(),
-                data.transactionCode(),
-                formatDate(data.transactionDate().toLocalDate()),
-                formatPaymentMethod(data.paymentMethod()),
-                data.totalAmount(),
-                data.barberCommission(),
-                data.tipAmount(),
-                data.reservationDate(),
-                data.reservationTime(),
-                data.barberShopName(),
-                data.barberShopAddress(),
-                data.barberShopName());
+    public void sendTransactionNotificationToBarber(TransactionEmailData data) {
+        String subject = "Pago recibido - Reserva #" + data.reservationId();
 
-        sendEmail(data.barberEmail(),subject,body);
+        String bodyContent = String.format("""
+        <p style="margin:0 0 16px;">Hola <strong style="color:#e5e2e1;">%s</strong>,</p>
+        <p style="margin:0 0 28px;">Se ha procesado el pago de la siguiente reserva.</p>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Cliente</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+              <p style="margin:4px 0 0;font-size:13px;color:#d0c5af;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Fecha servicio</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s %s</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr><td style="padding:18px 20px;">
+            <table width="100%%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="font-size:13px;color:#99907c;">Total transacción</td>
+                <td align="right" style="font-size:13px;color:#d0c5af;">$%s COP</td>
+              </tr>
+              <tr>
+                <td style="font-size:13px;color:#99907c;padding-top:4px;">Propina</td>
+                <td align="right" style="font-size:13px;color:#d0c5af;padding-top:4px;">$%s COP</td>
+              </tr>
+              <tr>
+                <td style="font-size:15px;font-weight:700;color:#e5e2e1;padding-top:8px;">Tu comisión</td>
+                <td align="right" style="font-size:16px;font-weight:700;color:#f2ca50;padding-top:8px;">$%s COP</td>
+              </tr>
+            </table>
+          </td></tr>
+        </table>
+        """,
+                data.barberName(),
+                data.clientName(), data.clientPhone(),
+                data.reservationDate(), data.reservationTime(),
+                formatPrice(data.totalAmount()),
+                formatPrice(data.tipAmount()),
+                formatPrice(data.barberCommission())
+        );
+
+        String html = buildEmailTemplate(
+                data.barberShopName(), "Pago Recibido", "#" + data.transactionCode(), bodyContent
+        );
+        sendEmail(data.barberEmail(), subject, html);
     }
 
     //email para la barberia
     @Async
-    public void sendTransactionNotificationToBarberShop(TransactionEmailData data){
+    public void sendTransactionNotificationToBarberShop(TransactionEmailData data) {
         String subject = "Nuevo ingreso registrado - Transacción #" + data.transactionCode();
 
-        String body = String.format("""
-            ADMINISTRACIÓN - %s
-            
-            Se ha registrado un nuevo ingreso:
-            
-            **Resumen financiero:**
-            - ID de transacción: #%s
-            - Fecha: %s
-            - Total recibido: $%.2f
-            - **Ingreso barbería: $%.2f**
-            - Comisión barbero: $%.2f
-            - Propina: $%.2f
-            - Método: %s
-            
-            **Detalles del servicio:**
-            - Barbero: %s
-            - Cliente: %s
-            - Teléfono cliente: %s
-            - Reserva: #%d
-            - Fecha servicio: %s
-            - Hora: %s
-            
-            
-            
-            Saludos,
-            Sistema de Administración
-            """,
+        String bodyContent = String.format("""
+        <p style="margin:0 0 28px;">Se ha registrado un nuevo ingreso en <strong style="color:#e5e2e1;">%s</strong>.</p>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Barbero</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+            </td>
+            <td style="padding:18px 20px;width:50%%;">
+              <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Cliente</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:#e5e2e1;">%s</p>
+              <p style="margin:4px 0 0;font-size:13px;color:#d0c5af;">%s</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%%" cellpadding="0" cellspacing="0" style="background:#131313;border-radius:8px;margin-bottom:16px;">
+          <tr><td style="padding:18px 20px;">
+            <p style="margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#99907c;">Resumen financiero</p>
+            <table width="100%%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="font-size:13px;color:#99907c;">Total recibido</td>
+                <td align="right" style="font-size:13px;color:#d0c5af;">$%s COP</td>
+              </tr>
+              <tr>
+                <td style="font-size:13px;color:#99907c;padding-top:4px;">Comisión barbero</td>
+                <td align="right" style="font-size:13px;color:#d0c5af;padding-top:4px;">$%s COP</td>
+              </tr>
+              <tr>
+                <td style="font-size:13px;color:#99907c;padding-top:4px;">Propina</td>
+                <td align="right" style="font-size:13px;color:#d0c5af;padding-top:4px;">$%s COP</td>
+              </tr>
+              <tr>
+                <td style="font-size:15px;font-weight:700;color:#e5e2e1;padding-top:8px;">Ingreso barbería</td>
+                <td align="right" style="font-size:16px;font-weight:700;color:#f2ca50;padding-top:8px;">$%s COP</td>
+              </tr>
+            </table>
+          </td></tr>
+        </table>
+        """,
                 data.barberShopName(),
-                data.transactionCode(),
-                formatDateTime(data.transactionDate()),
-                data.totalAmount(),
-                data.barberShopShare(),
-                data.barberCommission(),
-                data.tipAmount(),
-                formatPaymentMethod(data.paymentMethod()),
                 data.barberName(),
-                data.clientName(),
-                data.clientPhone(),
-                data.reservationId(),
-                data.reservationDate(),
-                data.reservationTime());
-        sendEmail(data.barberShopEmail(),subject,body);
+                data.clientName(), data.clientPhone(),
+                formatPrice(data.totalAmount()),
+                formatPrice(data.barberCommission()),
+                formatPrice(data.tipAmount()),
+                formatPrice(data.barberShopShare())
+        );
+
+        String html = buildEmailTemplate(
+                data.barberShopName(), "Nuevo Ingreso", formatDateTime(data.transactionDate()), bodyContent
+        );
+        sendEmail(data.barberShopEmail(), subject, html);
     }
 
 
 
 
-    private String formatServicesListWithPrices(List<ServiceInfo> services) {
+    private String buildEmailTemplate(String headerLabel, String title, String subtitle, String bodyContent) {
+        return String.format("""
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="margin:0;padding:0;background-color:#0e0e0e;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+          <table width="100%%" cellpadding="0" cellspacing="0" style="background-color:#0e0e0e;padding:40px 0;">
+            <tr><td align="center">
+              <table width="560" cellpadding="0" cellspacing="0" style="background-color:#1c1b1b;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);">
+                <tr><td style="background:linear-gradient(90deg,#f2ca50,#d4af37);height:4px;"></td></tr>
+                <tr>
+                  <td style="padding:36px 40px 24px;text-align:center;">
+                    <p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#f2ca50;">%s</p>
+                    <h1 style="margin:0;font-size:26px;font-weight:800;color:#e5e2e1;letter-spacing:-0.5px;">%s</h1>
+                    <p style="margin:8px 0 0;font-size:13px;color:#99907c;">%s</p>
+                  </td>
+                </tr>
+                <tr><td style="padding:0 40px;"><div style="height:1px;background:rgba(255,255,255,0.05);"></div></td></tr>
+                <tr>
+                  <td style="padding:32px 40px;color:#d0c5af;font-size:15px;line-height:1.7;">
+                    %s
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:20px 40px 32px;text-align:center;">
+                    <p style="margin:0;font-size:11px;color:#4d4635;letter-spacing:0.05em;">
+                      Si tienes dudas, contacta a tu barbería.<br/>© 2026 BarberOS
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td></tr>
+          </table>
+        </body>
+        </html>
+        """, headerLabel, title, subtitle, bodyContent);
+    }
+    private String formatServicesHtml(List<ServiceInfo> services) {
         if (services == null || services.isEmpty()) {
-            return "Ningún servicio especificado";
+            return "<p style=\"margin:0;font-size:14px;color:#d0c5af;\">Ningún servicio especificado</p>";
         }
 
         return services.stream()
                 .map(s -> String.format(
-                        "- %s (%d min) - $%.2f",
+                        """
+                        <table width="100%%" cellpadding="0" cellspacing="0" style="margin-bottom:6px;">
+                          <tr>
+                            <td style="font-size:14px;color:#d0c5af;">• %s <span style="font-size:12px;color:#99907c;">(%d min)</span></td>
+                            <td align="right" style="font-size:14px;font-weight:600;color:#e5e2e1;">$%s COP</td>
+                          </tr>
+                        </table>
+                        """,
                         s.name(),
                         s.duration(),
-                        s.price()
+                        formatPrice(s.price())
                 ))
-                .collect(Collectors.joining("\n"));
+                .collect(Collectors.joining());
     }
 
+    private String formatPrice(BigDecimal price) {
+        return NumberFormat.getNumberInstance(new Locale("es", "CO")).format(price);
+    }
     private String getCancellationPolicy() {
         return "Para cancelar, por favor avisa con al menos 20 minutos de anticipación.";
     }
@@ -729,5 +862,7 @@ public class EmailService {
             default -> status.toString();
         };
     }
+
+
 
 }

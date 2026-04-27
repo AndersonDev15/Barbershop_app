@@ -81,7 +81,7 @@ public class AuthorizationSecurityConfig {
                 .apply(authorizationServerConfigurer)
                 .oidc(oidc -> oidc
                         .userInfoEndpoint(userInfo -> userInfo.userInfoMapper(this::mapUserInfo))
-                        // ✅ Agregar esto:
+
                         .logoutEndpoint(Customizer.withDefaults())
                         .clientRegistrationEndpoint(Customizer.withDefaults())
                 );
@@ -128,29 +128,38 @@ public class AuthorizationSecurityConfig {
 
         return new OidcUserInfo(claims);
     }
+
+
     @Bean
     @Order(2)
-    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http,
-                                                      JwtAuthEntryPoint jwtAuthEntryPoint,
-                                                      JwtAccessDeniedHandler jwtAccessDeniedHandler) throws Exception {
+    public SecurityFilterChain publicApiFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/api/**", "/admin/**")  // Solo para endpoints /api/**
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/admin/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                .securityMatcher("/api/auth/**", "/admin/**")
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .csrf(AbstractHttpConfigurer::disable)
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(Customizer.withDefaults())
-                        .authenticationEntryPoint(jwtAuthEntryPoint)
-                        .accessDeniedHandler(jwtAccessDeniedHandler));
-
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                );
         return http.build();
     }
 
     @Bean
     @Order(3)
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http,
+                                                      JwtAuthEntryPoint jwtAuthEntryPoint,
+                                                      JwtAccessDeniedHandler jwtAccessDeniedHandler) throws Exception {
+        http
+                .securityMatcher("/api/**")
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .csrf(AbstractHttpConfigurer::disable)
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint(jwtAuthEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler));
+        return http.build();
+    }
+    @Bean
+    @Order(4)
     public SecurityFilterChain internalApiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/internal/**")
@@ -166,7 +175,7 @@ public class AuthorizationSecurityConfig {
         return http.build();
     }
     @Bean
-    @Order(4)
+    @Order(5)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
             throws Exception {
         http
@@ -175,6 +184,7 @@ public class AuthorizationSecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
+                        .defaultSuccessUrl("http://127.0.0.1:8090", false)
                         .permitAll()
                 )
                 .oauth2Login(oauth2Login -> oauth2Login

@@ -3,11 +3,12 @@ package com.auth.server.Controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@Controller  // ⭐ NO usar @RestController
+@Controller
 public class LoginController {
 
     @GetMapping("/login")
     public String login() {
         return "/login";
     }
+
 }

@@ -77,8 +77,15 @@ public class AuthUserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Token inválido"));
 
         if (verificationToken.isUsed()) {
+            // Si la cuenta ya está activa, es un doble-click o retry — no es un error real
+            AuthIdentity identity = verificationToken.getAuthIdentity();
+            if (identity.isEnabled() && identity.isEmailVerified()) {
+                log.info("Token ya usado pero cuenta activa, ignorando re-verificación: {}", identity.getEmail());
+                return; // ← silencioso, el frontend recibirá 200
+            }
             throw new ValidationException("Este token ya fue usado");
         }
+
         if (verificationToken.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Este token ha expirado");
         }
