@@ -2,6 +2,7 @@ package com.barber.project.transaction.repository;
 
 import com.barber.project.transaction.entity.BarberShopIncome;
 import com.barber.project.transaction.repository.projection.BarberIncomeSummary;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,19 +32,18 @@ public interface BarberShopIncomeRepository extends JpaRepository<BarberShopInco
             @Param("date") LocalDate date);
 
     @Query(value = """
-        SELECT 
-            bi.barber_id as barberId,                
-            SUM(bi.barber_share_amount + bi.tip_amount) as total  
-        FROM barbershop_incomes bi
-        WHERE bi.barbershop_id = :barbershopId 
-          AND DATE(bi.creation_date) BETWEEN :start AND :end
-        GROUP BY bi.barber_id
-        ORDER BY total DESC
-        LIMIT :limit
-        """, nativeQuery = true)
+    SELECT 
+        bi.barber_id as barberId,                
+        SUM(bi.barber_share_amount + bi.tip_amount) as total  
+    FROM barbershop_incomes bi
+    WHERE bi.barbershop_id = :barbershopId 
+      AND DATE(bi.creation_date) BETWEEN :start AND :end
+    GROUP BY bi.barber_id
+    ORDER BY total DESC
+    """, nativeQuery = true)
     List<BarberIncomeSummary> findTopBarberIds(
             @Param("barbershopId") Long barbershopId,
             @Param("start") LocalDate start,
             @Param("end") LocalDate end,
-            @Param("limit") int limit);
+            Pageable pageable);
 }

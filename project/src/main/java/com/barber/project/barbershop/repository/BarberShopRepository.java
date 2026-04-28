@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface BarberShopRepository extends JpaRepository<BarberShop,Long> {
    // Optional<BarberShop> findByUserEmail(String email);
@@ -18,9 +19,9 @@ public interface BarberShopRepository extends JpaRepository<BarberShop,Long> {
          BarberShopStatus status,
          Pageable pageable
  );
-    Optional<BarberShop> findByUser_UserUuid(String userUuid);
+    Optional<BarberShop> findByUser_UserUuid(UUID userUuid);
     List<BarberShop> findByNameContainingIgnoreCase(String name);
-    boolean existsByUser_UserUuid(String userUuid);
+    boolean existsByUser_UserUuid(UUID userUuid);
 
 
 }

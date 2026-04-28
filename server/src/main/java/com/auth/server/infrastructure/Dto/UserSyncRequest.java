@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 /**
  * DTO que Auth Server envía a Business API para sincronizar usuario
  */
@@ -13,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UserSyncRequest {
-    private String userUuid;
+    private UUID userUuid;
     private String email;
     private String firstName;
     private String lastName;

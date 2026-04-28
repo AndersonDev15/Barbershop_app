@@ -1,5 +1,6 @@
 package com.auth.server.Controller;
 
+import com.auth.server.Config.jwt.CurrentUser;
 import com.auth.server.Dto.Request.ChangePasswordRequest;
 import com.auth.server.Dto.Request.ForgotPasswordRequest;
 import com.auth.server.Dto.Request.ResetPasswordRequest;
@@ -42,8 +43,8 @@ public class PasswordResetController {
     @PatchMapping("/change-password")
     public ResponseEntity<Void> changePassword(
             @Valid @RequestBody ChangePasswordRequest request,
-            @AuthenticationPrincipal Jwt jwt) {
-        passwordManagementService.changePassword(jwt.getClaimAsString("user_uuid"), request);
+            @AuthenticationPrincipal CurrentUser currentUser) {
+        passwordManagementService.changePassword(currentUser.userUuid(), request);
         return ResponseEntity.noContent().build();
     }
 }

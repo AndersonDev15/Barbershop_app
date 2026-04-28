@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +21,8 @@ public class NotificationService {
     /**
      * Crea una nueva notificación para un usuario
      */
-    public void createNotification(String userUuid, NotificationType type,
-                                    String title, String message, Long referenceId) {
+    public void createNotification(UUID userUuid, NotificationType type,
+                                   String title, String message, Long referenceId) {
         Notification notification = new Notification();
         notification.setUserUuid(userUuid);
         notification.setType(type);
@@ -35,7 +36,7 @@ public class NotificationService {
      * Obtiene todas las notificaciones del usuario ordenadas por fecha descendente
      */
     @Transactional(readOnly = true)
-    public List<NotificationResponse> getNotifications(String userUuid) {
+    public List<NotificationResponse> getNotifications(UUID userUuid) {
         return notificationRepository.findByUserUuidOrderByCreatedAtDesc(userUuid)
                 .stream()
                 .map(n -> new NotificationResponse(
@@ -47,7 +48,7 @@ public class NotificationService {
     /**
      * Marca una notificación como leída
      */
-    public void markAsRead(Long id, String userUuid) {
+    public void markAsRead(Long id, UUID userUuid) {
         notificationRepository.findById(id).ifPresent(n -> {
             if (n.getUserUuid().equals(userUuid)) {
                 n.setRead(true);
@@ -59,7 +60,7 @@ public class NotificationService {
     /**
      * Marca todas las notificaciones del usuario como leídas
      */
-    public void markAllAsRead(String userUuid) {
+    public void markAllAsRead(UUID userUuid) {
         notificationRepository.markAllAsRead(userUuid);
     }
 
@@ -67,7 +68,7 @@ public class NotificationService {
      * Obtiene el conteo de notificaciones no leídas del usuario
      */
     @Transactional(readOnly = true)
-    public UnreadCountResponse getUnreadCount(String userUuid) {
+    public UnreadCountResponse getUnreadCount(UUID userUuid) {
         return new UnreadCountResponse(
                 notificationRepository.countByUserUuidAndReadFalse(userUuid));
     }

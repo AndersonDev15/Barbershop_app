@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.barber.project.Util.StringNormalizer.normalize;
 
@@ -31,7 +32,7 @@ public class BarberShopProfileService {
 
 
     @Transactional
-    public BarberShopProfileResponse createProfile(String userUuid, BarberShopProfileCreateRequest request){
+    public BarberShopProfileResponse createProfile(UUID userUuid, BarberShopProfileCreateRequest request){
         User user = userService.getByUuid(userUuid);
 
 
@@ -53,20 +54,20 @@ public class BarberShopProfileService {
     }
 
     @Transactional(readOnly = true)
-    public BarberShopProfileResponse getProfile(String userUuid){
+    public BarberShopProfileResponse getProfile(UUID userUuid){
         return barberShopRepository.findByUser_UserUuid(userUuid)
                 .map(this::mapToResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Barbería no encontrada"));
     }
 
     @Transactional(readOnly = true)
-    public BarberShopExistsResponse getMyBarberShop(String userUuid) {
+    public BarberShopExistsResponse getMyBarberShop(UUID userUuid) {
         boolean exists = barberShopRepository.existsByUser_UserUuid(userUuid);
         return new BarberShopExistsResponse(exists);
     }
 
     @Transactional
-    public BarberShopProfileResponse updateProfile(String userUuid, BarberShopProfileUpdateRequest request) {
+    public BarberShopProfileResponse updateProfile(UUID userUuid, BarberShopProfileUpdateRequest request) {
         BarberShop barberShop = barberShopRepository.findByUser_UserUuid(userUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Barbería no encontrada"));
 

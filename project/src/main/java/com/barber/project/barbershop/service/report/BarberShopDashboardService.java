@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +23,7 @@ public class BarberShopDashboardService {
     private final BarberService barberService;
 
     @Transactional(readOnly = true)
-    public BarbershopDashboardResponse dashboard(String ownerUuid){
+    public BarbershopDashboardResponse dashboard(UUID ownerUuid){
 
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
 

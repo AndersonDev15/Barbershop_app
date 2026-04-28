@@ -1,6 +1,5 @@
-package com.barber.project.Security.Jwt;
+package com.auth.server.Config.jwt;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 

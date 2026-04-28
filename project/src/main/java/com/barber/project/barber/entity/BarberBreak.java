@@ -15,7 +15,9 @@ public class BarberBreak {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "start_time")
     private LocalTime start;
+    @Column(name = "end_time")
     private LocalTime end;
     @Column(name = "break_date")
     private LocalDate date;

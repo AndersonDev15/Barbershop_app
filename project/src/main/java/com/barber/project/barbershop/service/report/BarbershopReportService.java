@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +33,7 @@ public class BarbershopReportService {
 
     //rango de fecha (todos los barberos)
     @Transactional(readOnly = true)
-    public IncomesByBarberResponse incomesByDateRange(String ownerUuid, LocalDate start, LocalDate end){
+    public IncomesByBarberResponse incomesByDateRange(UUID ownerUuid, LocalDate start, LocalDate end){
 
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
 
@@ -53,7 +54,7 @@ public class BarbershopReportService {
 
     //reporte diario
     @Transactional(readOnly = true)
-    public DailyBarberIncomeResponse dailyReport(String ownerUuid, LocalDate date) {
+    public DailyBarberIncomeResponse dailyReport(UUID ownerUuid, LocalDate date) {
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
 
 
@@ -81,7 +82,7 @@ public class BarbershopReportService {
 
 
     @Transactional(readOnly = true)
-    public ReportResponse getReport(String ownerUuid, ReportType type, LocalDate referenceDate) {
+    public ReportResponse getReport(UUID ownerUuid, ReportType type, LocalDate referenceDate) {
 
         LocalDate date = referenceDate != null ? referenceDate : LocalDate.now();
 
@@ -129,7 +130,7 @@ public class BarbershopReportService {
 
     //comparacion mes actual vs mes pasado
     @Transactional(readOnly = true)
-    public MonthlyComparisonResponse monthlyComparison(String ownerUuid,LocalDate today){
+    public MonthlyComparisonResponse monthlyComparison(UUID ownerUuid,LocalDate today){
 
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
 
@@ -167,7 +168,7 @@ public class BarbershopReportService {
 
     //top barberos
     @Transactional(readOnly = true)
-    public List<TopBarberResponse> topBarbers(String ownerUuid, LocalDate start, LocalDate end, int limit) {
+    public List<TopBarberResponse> topBarbers(UUID ownerUuid, LocalDate start, LocalDate end, int limit) {
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
 
         return barberShopIncomeService.findTopBarberIds(barberShop.getId(), start, end, limit)
@@ -187,7 +188,7 @@ public class BarbershopReportService {
 
     //ingresos barberia
     @Transactional(readOnly = true)
-    public BarberShopIncomeSummary calculateBarberShopIncome(String ownerUuid, LocalDate start, LocalDate end){
+    public BarberShopIncomeSummary calculateBarberShopIncome(UUID ownerUuid, LocalDate start, LocalDate end){
 
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
 
@@ -217,7 +218,7 @@ public class BarbershopReportService {
 
     //ultimos 7 dias
     @Transactional(readOnly = true)
-    public List<DayIncomeResponse> dailyIncomeRange(String ownerUuid, LocalDate start, LocalDate end) {
+    public List<DayIncomeResponse> dailyIncomeRange(UUID ownerUuid, LocalDate start, LocalDate end) {
 
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
 

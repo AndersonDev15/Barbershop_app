@@ -37,7 +37,7 @@ public class FederatedIdentityService {
                 .orElseThrow(()->new ResourceNotFoundException("Rol no encontrado"));
 
         AuthIdentity authIdentity = AuthIdentity.builder()
-                .userUuid(UUID.randomUUID().toString())
+                .userUuid(UUID.randomUUID())
                 .email(email.toLowerCase().trim())
                 .firstName(givenName)
                 .lastName(familyName)

@@ -6,17 +6,19 @@ import com.barber.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
 
-    public User getByUuid(String userUuid) {
+    public User getByUuid(UUID userUuid) {
         return userRepository.findByUserUuid(userUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
     }
 
-    public boolean existsByUuid(String userUuid) {
+    public boolean existsByUuid(UUID userUuid) {
         return userRepository.existsByUserUuid(userUuid);
     }
 }

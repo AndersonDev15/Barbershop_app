@@ -1,7 +1,9 @@
 package com.auth.server.infrastructure.Dto;
 
+import java.util.UUID;
+
 public record UserSummaryResponse(
-        String userUuid,
+        UUID userUuid,
         String email,
         String firstName,
         String lastName,

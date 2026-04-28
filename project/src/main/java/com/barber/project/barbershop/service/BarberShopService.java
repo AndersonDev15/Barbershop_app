@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class BarberShopService {
 
     // crear horarios de atencion
     @Transactional
-    public OpeningHoursResponse createOpeningHours(OpeningHoursRequest request, String ownerUuid){
+    public OpeningHoursResponse createOpeningHours(OpeningHoursRequest request, UUID ownerUuid){
 
         BarberShop barberShop = getOwnerBarberShop(ownerUuid);
         ensureActive(barberShop);
@@ -66,7 +67,7 @@ public class BarberShopService {
 
     //Listar los horarios
     @Transactional(readOnly = true)
-    public List<OpeningHoursResponse> listOpeningHours(String ownerUuid){
+    public List<OpeningHoursResponse> listOpeningHours(UUID ownerUuid){
         BarberShop barberShop = getOwnerBarberShop(ownerUuid);
 
         return openingHoursRepository.findByBarberShop(barberShop)
@@ -76,7 +77,7 @@ public class BarberShopService {
     }
     //editar horario
     @Transactional
-    public OpeningHoursResponse updateOpeningHours(Long id, OpeningHoursRequest request, String ownerUuid){
+    public OpeningHoursResponse updateOpeningHours(Long id, OpeningHoursRequest request, UUID ownerUuid){
         BarberShop barberShop = getOwnerBarberShop(ownerUuid);
         ensureActive(barberShop);
 
@@ -117,7 +118,7 @@ public class BarberShopService {
     }
     //eliminar horario
     @Transactional
-    public void deleteOpeningHours(Long id, String ownerUuid){
+    public void deleteOpeningHours(Long id, UUID ownerUuid){
         BarberShop barberShop = getOwnerBarberShop(ownerUuid);
         ensureActive(barberShop);
 
@@ -132,12 +133,12 @@ public class BarberShopService {
     }
 
     @Transactional
-    public void activateBarberShop(String ownerUuid){
+    public void activateBarberShop(UUID ownerUuid){
         changeBarberShopStatus(ownerUuid, BarberShopStatus.ACTIVO);
     }
 
     @Transactional
-    public void desactivateBarberShop(String ownerUuid){
+    public void desactivateBarberShop(UUID ownerUuid){
         changeBarberShopStatus(ownerUuid, BarberShopStatus.INACTIVO);
     }
 
@@ -165,7 +166,7 @@ public class BarberShopService {
         );
     }
 
-    public BarberShop getOwnerBarberShop(String ownerUuid){
+    public BarberShop getOwnerBarberShop(UUID ownerUuid){
         return barberShopRepository.findByUser_UserUuid(ownerUuid)
                 .orElseThrow(()->new ResourceNotFoundException("Barbería no encontrada para este usuario"));
     }
@@ -203,7 +204,7 @@ public class BarberShopService {
     }
 
 
-    public void changeBarberShopStatus(String ownerUuid, BarberShopStatus newStatus) {
+    public void changeBarberShopStatus(UUID ownerUuid, BarberShopStatus newStatus) {
         BarberShop barberShop = getOwnerBarberShop(ownerUuid);
 
         if (barberShop.getStatus().equals(newStatus)){

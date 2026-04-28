@@ -42,7 +42,7 @@ public class ClientInitConfig {
                             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                             .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                             .redirectUri(redirectUri)
-                            .postLogoutRedirectUri("http://127.0.0.1:5173/login")// ✅ configurable via env
+                            .postLogoutRedirectUri("http://127.0.0.1:5173/login")
                             .scope(OidcScopes.OPENID)
                             .scope(OidcScopes.PROFILE)
                             .scope("read")

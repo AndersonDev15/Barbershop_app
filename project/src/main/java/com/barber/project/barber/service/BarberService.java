@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -45,7 +46,7 @@ public class BarberService {
     }
 
     @Transactional(readOnly = true)
-    public Barber getBarberByUserUuid(String userUuid) {
+    public Barber getBarberByUserUuid(UUID userUuid) {
         return barberRepository.findByUser_UserUuid(userUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Barbero no encontrado"));
     }

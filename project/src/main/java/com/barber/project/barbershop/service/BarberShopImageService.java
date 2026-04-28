@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @Service
@@ -27,7 +28,7 @@ public class BarberShopImageService {
 
     //subir imagen
     @Transactional
-    public ImageResponse uploadImage(String ownerUuid, MultipartFile file){
+    public ImageResponse uploadImage(UUID ownerUuid, MultipartFile file){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
 
         //validar
@@ -62,7 +63,7 @@ public class BarberShopImageService {
 
     //listar imagenes
     @Transactional(readOnly = true)
-    public List<ImageResponse> listMyImages(String ownerUuid){
+    public List<ImageResponse> listMyImages(UUID ownerUuid){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         List<BarberShopImage> images =  barberShopImageRepository.findByBarberShop(barberShop);
         return images.stream()
@@ -72,7 +73,7 @@ public class BarberShopImageService {
 
     //eliminar imagen
     @Transactional
-    public void deleteImage(Long imageId, String ownerUuid){
+    public void deleteImage(Long imageId, UUID ownerUuid){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         BarberShopImage image = barberShopImageRepository.findByIdAndBarberShop(imageId,barberShop)
                 .orElseThrow(()->new ResourceNotFoundException("Imagen no encontrada"));
@@ -86,7 +87,7 @@ public class BarberShopImageService {
 
     //establecer portada.
     @Transactional
-    public void setCoverImage(Long imageId, String ownerUuid){
+    public void setCoverImage(Long imageId, UUID ownerUuid){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         BarberShopImage image = barberShopImageRepository.findByIdAndBarberShop(imageId,barberShop)
                 .orElseThrow(()->new ResourceNotFoundException("Imagen no encontrada"));

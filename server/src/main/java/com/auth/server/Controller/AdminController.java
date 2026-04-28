@@ -26,7 +26,7 @@ public class AdminController {
     @PostMapping("/reconcile-users")
     public ResponseEntity<String> reconcileUsers() {
 
-        log.info("🔧 Reconciliación manual solicitada");
+        log.info("Reconciliación manual solicitada");
 
         reconciliationService.reconcileUsersManually();
 

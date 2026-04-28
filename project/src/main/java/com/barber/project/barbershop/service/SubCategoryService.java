@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.rmi.server.UID;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +26,7 @@ public class SubCategoryService {
 
 
     @Transactional
-    public SubCategoryResponse createSubcategory(Long CategoryId, SubCategoryRequest request,String ownerUuid){
+    public SubCategoryResponse createSubcategory(Long CategoryId, SubCategoryRequest request, UUID ownerUuid){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         barberShopService.ensureActive(barberShop);
 
@@ -49,7 +51,7 @@ public class SubCategoryService {
 
     //listar subcategorias desde la barberia autenticada
     @Transactional(readOnly = true)
-    public List<SubCategoryResponse> listSubcategories(Long categoryId, String ownerUuid){
+    public List<SubCategoryResponse> listSubcategories(Long categoryId, UUID ownerUuid){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         Category category = categoryService.getCategoryByIdAndBarberShop(categoryId,barberShop);
         return subCategoryRepository.findByCategory(category)
@@ -68,7 +70,7 @@ public class SubCategoryService {
     }
 
     @Transactional
-    public SubCategoryResponse updateSubcategory(Long categoryId, Long subCategoryId, SubCategoryRequest request, String ownerUuid){
+    public SubCategoryResponse updateSubcategory(Long categoryId, Long subCategoryId, SubCategoryRequest request, UUID ownerUuid){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         barberShopService.ensureActive(barberShop);
 

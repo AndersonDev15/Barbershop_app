@@ -5,11 +5,12 @@ import com.barber.project.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ClientRepository extends JpaRepository<Client, Long> {
     Optional<Client> findByUser(User user);
    // Optional<Client> findByUserEmail(String email);
-    Optional<Client> findByUser_UserUuid(String userUuid);
+    Optional<Client> findByUser_UserUuid(UUID userUuid);
 
 
 }

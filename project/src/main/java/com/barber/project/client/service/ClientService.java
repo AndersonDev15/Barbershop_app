@@ -19,6 +19,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.barber.project.Util.StringNormalizer.normalize;
@@ -30,7 +31,7 @@ public class ClientService {
     private final BarberShopService barberShopService;
 
     @Transactional(readOnly = true)
-    public Client getClientByUserUuid(String userUuid) {
+    public Client getClientByUserUuid(UUID userUuid) {
         return clientRepository.findByUser_UserUuid(userUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
     }

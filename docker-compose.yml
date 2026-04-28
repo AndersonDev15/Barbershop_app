@@ -1,20 +1,4 @@
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: barbershop-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   auth-server:
     build: ./server
     container_name: barbershop-auth
@@ -23,16 +7,19 @@ services:
     env_file:
       - ./server/.env
     environment:
-      APP_BASE_URL: ${APP_BASE_URL}
-      APP_REDIRECT_URI: ${APP_REDIRECT_URI}
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/auth
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       BUSINESS_API_URL: http://business-api:8080
-      SPRING_JPA_HIBERNATE_DDL_AUTO: none
-    depends_on:
-      mysql:
-        condition: service_healthy
+      APP_BASE_URL: http://127.0.0.1:9000
+      APP_REDIRECT_URI: http://127.0.0.1:8090/login/oauth2/code/barberia-client
+      APP_FRONTEND_URL: ${FRONTEND_URL}
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 9000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 60s
 
   business-api:
     build: ./project
@@ -42,17 +29,42 @@ services:
     env_file:
       - ./project/.env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/barber
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: ${JWK_SET_URI}
       AUTH_SERVER_URL: http://auth-server:9000
-      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://auth-server:9000/oauth2/jwks
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     depends_on:
-      mysql:
-        condition: service_healthy
       auth-server:
+        condition: service_healthy
+
+  bff:
+    build: ./bff
+    container_name: barbershop-bff
+    ports:
+      - "8090:8090"
+    env_file:
+      - ./bff/.env
+    environment:
+      AUTH_SERVER_URL: http://auth-server:9000
+      AUTH_SERVER_PUBLIC_URL: http://127.0.0.1:9000
+      BARBERIA_API_URL: http://business-api:8080
+      FRONTEND_URL: ${FRONTEND_URL}
+      FRONTEND_URL_ALT: ${FRONTEND_URL}
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    depends_on:
+      auth-server:
+        condition: service_healthy
+      business-api:
         condition: service_started
 
-volumes:
-  mysql-data:
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

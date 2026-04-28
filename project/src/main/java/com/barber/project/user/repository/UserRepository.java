@@ -8,11 +8,12 @@ import org.springframework.data.repository.query.Param;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User>findByUserUuid(String userUuid);
-    List<User> findByUserUuidIn(List<String> userUuids);
+    Optional<User>findByUserUuid(UUID userUuid);
+    List<User> findByUserUuidIn(List<UUID> userUuids);
 
     /**
      * Encontrar usuarios no sincronizados recientemente
@@ -20,6 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.lastSyncedAt < :threshold")
     List<User>findStaleUsers(@Param("threshold")Instant threshold);
 
-    boolean existsByUserUuid(String userUuid);
+    boolean existsByUserUuid(UUID userUuid);
 
 }

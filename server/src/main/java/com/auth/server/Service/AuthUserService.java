@@ -45,7 +45,7 @@ public class AuthUserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado: " + request.role()));
 
         AuthIdentity identity = AuthIdentity.builder()
-                .userUuid(UUID.randomUUID().toString())
+                .userUuid(UUID.randomUUID())
                 .firstName(request.firstName())
                 .lastName(request.lastName())
                 .phone(request.phone())
@@ -103,7 +103,7 @@ public class AuthUserService {
     }
 
     @Transactional
-    public UserResponse updateProfile(String userUuid, UpdateUserRequest request) {
+    public UserResponse updateProfile(UUID userUuid, UpdateUserRequest request) {
         AuthIdentity identity = authIdentityRepository.findByUserUuid(userUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 

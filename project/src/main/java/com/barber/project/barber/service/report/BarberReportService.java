@@ -22,6 +22,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -33,7 +34,7 @@ public class BarberReportService {
     private final BarberService barberService;
 
     @Transactional(readOnly = true)
-    public BarberBreakResponse.BarberReportResponse barberReport(String userUuid, LocalDate startDate, LocalDate endDate){
+    public BarberBreakResponse.BarberReportResponse barberReport(UUID userUuid, LocalDate startDate, LocalDate endDate){
         Barber barber = barberService.getBarberByUserUuid(userUuid);
 
         List<Transaction> transactions = transactionService.findCompletedByBarberAndDateRange(
@@ -66,13 +67,13 @@ public class BarberReportService {
 
     //diario
     @Transactional(readOnly = true)
-    public BarberBreakResponse.BarberReportResponse barberDailyReport(String userUuid, LocalDate date) {
+    public BarberBreakResponse.BarberReportResponse barberDailyReport(UUID userUuid, LocalDate date) {
         return barberReport(userUuid,date, date);
     }
 
     //semanal
     @Transactional(readOnly = true)
-    public BarberBreakResponse.BarberReportResponse barberWeeklyReport(String userUuid, LocalDate anyDateInWeek){
+    public BarberBreakResponse.BarberReportResponse barberWeeklyReport(UUID userUuid, LocalDate anyDateInWeek){
         return barberReport(
                 userUuid,
                 anyDateInWeek.with(DayOfWeek.MONDAY),
@@ -82,7 +83,7 @@ public class BarberReportService {
 
     //mensual
     @Transactional(readOnly = true)
-    public BarberBreakResponse.BarberReportResponse barberMonthlyReport(String userUuid, LocalDate anyDateInMonth){
+    public BarberBreakResponse.BarberReportResponse barberMonthlyReport(UUID userUuid, LocalDate anyDateInMonth){
         return barberReport(
                 userUuid,
                 anyDateInMonth.withDayOfMonth(1),
@@ -92,7 +93,7 @@ public class BarberReportService {
 
     //comparacion mes actual vs mes anterior
     @Transactional(readOnly = true)
-    public MonthlyComparisonResponse getMonthlyComparison(String userUuid){
+    public MonthlyComparisonResponse getMonthlyComparison(UUID userUuid){
 
         LocalDate today = LocalDate.now();
         LocalDate currentStart = today.withDayOfMonth(1);
@@ -121,7 +122,7 @@ public class BarberReportService {
 
     //ingresos ultimos 7 dias
     @Transactional(readOnly = true)
-    public Last7DaysResponse last7DaysIncome(String userUuid){
+    public Last7DaysResponse last7DaysIncome(UUID userUuid){
         Barber barber = barberService.getBarberByUserUuid(userUuid);
         LocalDate today = LocalDate.now();
         LocalDate start = today.minusDays(6);
@@ -154,7 +155,7 @@ public class BarberReportService {
 
     //horas trabajadas
     @Transactional(readOnly = true)
-    public WorkedHoursResponse workedHours(String userUuid, LocalDate anyDateInMonth){
+    public WorkedHoursResponse workedHours(UUID userUuid, LocalDate anyDateInMonth){
         Barber barber =barberService.getBarberByUserUuid(userUuid);
         LocalDate firstDay = anyDateInMonth.withDayOfMonth(1);
         LocalDate lastDay = anyDateInMonth.withDayOfMonth(anyDateInMonth.lengthOfMonth());

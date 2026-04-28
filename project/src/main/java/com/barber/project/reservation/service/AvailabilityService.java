@@ -65,7 +65,7 @@ public class AvailabilityService {
 
     // para el barbero: Ver su propia disponibilidad
     @Transactional(readOnly = true)
-    public BarberDailySlotsResponse getBarberSelfAvailability(String userUuid, LocalDate date) {
+    public BarberDailySlotsResponse getBarberSelfAvailability(UUID userUuid, LocalDate date) {
 
         BarberValidationResult validation = validationService.validateAuthenticatedBarber(userUuid);
 
@@ -87,7 +87,7 @@ public class AvailabilityService {
 
     // para barberia: Ver disponibilidad de un barbero
     @Transactional(readOnly = true)
-    public BarberDailySlotsResponse getBarberAvailabilityForShop(Long barberId, LocalDate date, String ownerUuid ) {
+    public BarberDailySlotsResponse getBarberAvailabilityForShop(Long barberId, LocalDate date, UUID ownerUuid ) {
 
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         barberShopService.ensureActive(barberShop);

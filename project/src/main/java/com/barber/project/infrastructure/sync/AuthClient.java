@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.UUID;
 
 @FeignClient(
         name = "auth-client",
@@ -16,7 +17,7 @@ import java.util.List;
 )
 public interface AuthClient {
     @PostMapping("/internal/users/batch")
-    List<UserSummaryResponse> getUsersByUuids(@RequestBody List<String> uuids);
+    List<UserSummaryResponse> getUsersByUuids(@RequestBody List<UUID> uuids);
 
 
 }

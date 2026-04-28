@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +31,7 @@ public class ManageBarberService {
      */
 
     @Transactional(readOnly = true)
-    public Page<BarberResponse> getBarber(String ownerUuid, Pageable pageable){
+    public Page<BarberResponse> getBarber(UUID ownerUuid, Pageable pageable){
 
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
 
@@ -39,7 +40,7 @@ public class ManageBarberService {
 
     //actualizar commision
     @Transactional
-    public UpdateBarberResponse updateBarberCommission(Long barberId, BigDecimal newCommission, String ownerUuid){
+    public UpdateBarberResponse updateBarberCommission(Long barberId, BigDecimal newCommission, UUID ownerUuid){
 
         validateCommision(newCommission);
         Barber barber = validateBarberOwnership(barberId,ownerUuid);
@@ -50,24 +51,24 @@ public class ManageBarberService {
      * Cambiar estado de barberos
      */
     @Transactional
-    public void deactivateBarber(Long barberId, String ownerUuid) {
+    public void deactivateBarber(Long barberId, UUID ownerUuid) {
         changeBarberStatus(barberId, BarberStatus.INACTIVO, ownerUuid);
     }
 
     @Transactional
-    public void activateBarber(Long barberId, String ownerUuid) {
+    public void activateBarber(Long barberId, UUID ownerUuid) {
         changeBarberStatus(barberId, BarberStatus.ACTIVO, ownerUuid);
     }
 
     @Transactional
-    public void setBarberOnVacation(Long barberId, String ownerUuid) {
+    public void setBarberOnVacation(Long barberId, UUID ownerUuid) {
         changeBarberStatus(barberId, BarberStatus.VACACIONES, ownerUuid);
     }
 
     //metodos helpers
 
     //validar barbero
-    private Barber validateBarberOwnership(Long barberId, String ownerUuid){
+    private Barber validateBarberOwnership(Long barberId, UUID ownerUuid){
 
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
 
@@ -83,7 +84,7 @@ public class ManageBarberService {
     private void changeBarberStatus(
             Long barberId,
             BarberStatus newStatus,
-            String ownerUuid
+            UUID ownerUuid
     ){
         Barber barber = validateBarberOwnership(barberId,ownerUuid);
         BarberStatus oldStatus = barber.getStatus();

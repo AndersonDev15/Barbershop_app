@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class UserService {
     private final AuthIdentityRepository identityRepository;
 
     @Transactional(readOnly = true)
-    public List<UserSummaryResponse> findByUuids(List<String> uuids){
+    public List<UserSummaryResponse> findByUuids(List<UUID> uuids){
         log.debug("Buscando {} usuarios", uuids.size());
 
         List<AuthIdentity> identities = identityRepository.findByUserUuidIn(uuids);

@@ -8,14 +8,15 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface AuthIdentityRepository extends JpaRepository<AuthIdentity, Long> {
 
     Optional<AuthIdentity> findByEmail(String email);
 
-    Optional<AuthIdentity> findByUserUuid(String userUuid);
+    Optional<AuthIdentity> findByUserUuid(UUID userUuid);
 
-    List<AuthIdentity> findByUserUuidIn(List<String> userUuids);
+    List<AuthIdentity> findByUserUuidIn(List<UUID> userUuids);
 
     /**
      * Encontrar usuarios habilitados y verificados

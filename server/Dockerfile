@@ -10,4 +10,4 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 9000
-ENTRYPOINT ["java", "-Duser.timezone=America/Bogota", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djava.net.preferIPv4Stack=true", "-Duser.timezone=America/Bogota", "-jar", "app.jar"]

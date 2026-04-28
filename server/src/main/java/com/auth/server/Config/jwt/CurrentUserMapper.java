@@ -1,9 +1,7 @@
-package com.barber.project.Security.Jwt;
+package com.auth.server.Config.jwt;
 
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;

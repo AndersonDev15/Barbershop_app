@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "notifications")
@@ -22,7 +23,7 @@ public class Notification {
     private Long id;
 
     @Column(name = "user_uuid", nullable = false)
-    private String userUuid;
+    private UUID userUuid;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

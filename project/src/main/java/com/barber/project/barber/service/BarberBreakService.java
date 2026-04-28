@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +31,7 @@ public class BarberBreakService {
     private final BarberShopService barberShopService;
 
     @Transactional
-    public BarberBreakResponse createBreak(BarberBreakRequest request, String userUuid) {
+    public BarberBreakResponse createBreak(BarberBreakRequest request, UUID userUuid) {
         if (!request.end().isAfter(request.start())) {
             throw new BadRequestException(
                     String.format("La hora de fin (%s) debe ser posterior a la hora de inicio (%s)",
@@ -73,7 +74,7 @@ public class BarberBreakService {
     }
 
     @Transactional(readOnly = true)
-    public List<BarberBreakResponse> listBreaks(LocalDate date, String userUuid) {
+    public List<BarberBreakResponse> listBreaks(LocalDate date, UUID userUuid) {
         BarberValidationResult validation = barberValidationService.validateAuthenticatedBarber(userUuid);
         return breakRepository.findByBarberIdAndDate(validation.barber().getId(), date)
                 .stream()

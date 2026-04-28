@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "auth_identity")
@@ -22,8 +23,8 @@ public class AuthIdentity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_uuid", nullable = false, unique = true, length = 36)
-    private String userUuid;
+    @Column(name = "user_uuid", nullable = false, unique = true)
+    private UUID userUuid;
 
     @Column(name = "first_name")
     private String firstName;
@@ -36,7 +37,6 @@ public class AuthIdentity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
     private boolean enabled;

@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +55,7 @@ public class BarberInvitationResponseService {
 
 
     @Transactional
-    public void acceptInvitation(String barberUuid, String email, String token) {
+    public void acceptInvitation(UUID barberUuid, String email, String token) {
 
         BarberInvitation invitation = barberInvitationService.findByToken(token);
 
@@ -87,7 +88,7 @@ public class BarberInvitationResponseService {
     }
 
     @Transactional
-    public void rejectInvitation(String barberUuid, String token) {
+    public void rejectInvitation(UUID barberUuid, String token) {
 
         BarberInvitation invitation = barberInvitationService.findByToken(token);
 

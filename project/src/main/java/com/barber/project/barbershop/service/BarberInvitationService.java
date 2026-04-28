@@ -28,7 +28,7 @@ public class BarberInvitationService {
 
     @Transactional
     public BarberInvitationResponse barberInvitation(
-            String ownerUuid,
+            UUID ownerUuid,
             CreateBarberInvitationRequest request
     ){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
@@ -73,7 +73,7 @@ public class BarberInvitationService {
     }
 
     @Transactional(readOnly = true)
-    public List<BarberInvitationResponse> getInvitation(String ownerUuid){
+    public List<BarberInvitationResponse> getInvitation(UUID ownerUuid){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         return barberInvitationRepository.findByBarberShopId(barberShop.getId())
                 .stream()
@@ -87,7 +87,7 @@ public class BarberInvitationService {
     }
 
     @Transactional
-    public void cancelInvitation(String ownerUuid, String token){
+    public void cancelInvitation(UUID ownerUuid, String token){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         BarberInvitation barberInvitation = barberInvitationRepository.findByToken(token)
                 .orElseThrow(()->new ResourceNotFoundException("Invitacion no encontrada"));

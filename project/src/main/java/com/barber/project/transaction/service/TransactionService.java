@@ -46,7 +46,7 @@ public class TransactionService {
     private final NotificationService notificationService;
 
     @Transactional
-    public TransactionResponse payReservation(Long reservationId, PaymentRequest request, String userUuid){
+    public TransactionResponse payReservation(Long reservationId, PaymentRequest request, UUID userUuid){
 
         Reservation reservation = reservationQueryService.getById(reservationId);
 
@@ -122,7 +122,7 @@ public class TransactionService {
 
 
     @Transactional
-    public TransactionResponse completeTransaction(Long transactionId, String userUuid){
+    public TransactionResponse completeTransaction(Long transactionId, UUID userUuid){
 
         Barber barber = barberService.getBarberByUserUuid(userUuid);
 
@@ -158,7 +158,7 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public List<TransactionResponse> listTodayTransactions(String userUuid) {
+    public List<TransactionResponse> listTodayTransactions(UUID userUuid) {
         Barber barber = barberService.getBarberByUserUuid(userUuid);
 
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();

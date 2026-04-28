@@ -9,8 +9,5 @@ RUN ./mvnw clean package -DskipTests
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-Djava.net.preferIPv4Stack=true", "-Duser.timezone=America/Bogota", "-jar", "app.jar"]
-
-
-
+EXPOSE 8090
+ENTRYPOINT ["java", "-Duser.timezone=America/Bogota", "-jar", "app.jar"]

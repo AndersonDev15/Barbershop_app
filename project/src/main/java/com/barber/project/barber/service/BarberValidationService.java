@@ -8,6 +8,9 @@ import com.barber.project.barbershop.service.BarberShopService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.rmi.server.UID;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class BarberValidationService {
@@ -22,7 +25,7 @@ public class BarberValidationService {
         barberShopService.ensureActive(barberShop);
         return new BarberValidationResult(barber,barberShop);
     }
-    public BarberValidationResult validateAuthenticatedBarber(String userUuid) {
+    public BarberValidationResult validateAuthenticatedBarber(UUID userUuid) {
         Barber barber = barberService.getBarberByUserUuid(userUuid);
         barberService.validateBarberIsActive(barber);
 

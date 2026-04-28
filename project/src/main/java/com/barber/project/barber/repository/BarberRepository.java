@@ -11,10 +11,11 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface BarberRepository extends JpaRepository<Barber, Long> {
     Optional<Barber> findByUserAndBarberShop(User user, BarberShop barberShop);
-    Optional<Barber>findByUser_UserUuid(String userUuid);
+    Optional<Barber>findByUser_UserUuid(UUID userUuid);
     Optional<Barber> findByIdAndBarberShop_Id(Long barberId, Long barberShopId);
     Page<Barber> findByBarberShopId(Long barberShopId, Pageable pageable);
     List<Barber>findByBarberShop_Id(Long barbershopId );

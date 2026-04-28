@@ -34,6 +34,7 @@ import java.time.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -56,7 +57,7 @@ public class ReservationService {
     private static final int MIN_CANCELLATION_MINUTES = 15;
 
     @Transactional
-    public ReservationResponse createReservation(ReservationRequest request, String userUuid) {
+    public ReservationResponse createReservation(ReservationRequest request, UUID userUuid) {
 
         if (request.subcategoryIds() == null || request.subcategoryIds().isEmpty()) {
             throw new ValidationException("Debes seleccionar al menos un servicio");
@@ -101,7 +102,7 @@ public class ReservationService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReservationResponse> listReservations(LocalDate date, String userUuid) {
+    public List<ReservationResponse> listReservations(LocalDate date, UUID userUuid) {
 
         Barber barber = barberService.getBarberByUserUuid(userUuid);
 
@@ -114,7 +115,7 @@ public class ReservationService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReservationResponse> getMyTodayReservations(String userUuid) {
+    public List<ReservationResponse> getMyTodayReservations(UUID userUuid) {
 
         Barber barber = barberService.getBarberByUserUuid(userUuid);
 
@@ -129,7 +130,7 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public List<ReservationResponse> getMyClientReservations(
             ReservationStatus status,
-            String userUuid
+            UUID userUuid
     ) {
 
         Client client = clientService.getClientByUserUuid(userUuid);
@@ -145,7 +146,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResponse cancelReservation(Long reservationId, String userUuid) {
+    public ReservationResponse cancelReservation(Long reservationId, UUID userUuid) {
 
         Client client = clientService.getClientByUserUuid(userUuid);
 
@@ -182,7 +183,7 @@ public class ReservationService {
     public ReservationResponse changeReservationStatus(
             Long reservationId,
             ReservationStatus newStatus,
-            String userUuid
+            UUID userUuid
     ) {
 
         Barber barber = barberService.getBarberByUserUuid(userUuid);

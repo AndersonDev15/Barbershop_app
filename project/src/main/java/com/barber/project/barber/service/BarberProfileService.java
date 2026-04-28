@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class BarberProfileService {
@@ -19,7 +21,7 @@ public class BarberProfileService {
 
 
     @Transactional(readOnly = true)
-    public BarberProfileResponse getProfile(String userUuid) {
+    public BarberProfileResponse getProfile(UUID userUuid) {
         Barber barber = barberRepository.findByUser_UserUuid(userUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Barbero no encontrado"));
         return mapToResponse(barber.getUser(), barber);

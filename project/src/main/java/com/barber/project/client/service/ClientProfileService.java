@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class ClientProfileService {
@@ -17,7 +19,7 @@ public class ClientProfileService {
     private final ClientRepository clientRepository;
 
     @Transactional
-    public void createClient(String userUuid) {
+    public void createClient(UUID userUuid) {
         User user = userService.getByUuid(userUuid);
 
         clientRepository.findByUser_UserUuid(userUuid)
@@ -31,7 +33,7 @@ public class ClientProfileService {
 
 
     @Transactional(readOnly = true)
-    public ClientProfileResponse getProfile(String userUuid){
+    public ClientProfileResponse getProfile(UUID userUuid){
         Client client = clientRepository.findByUser_UserUuid(userUuid)
                 .orElseThrow(()-> new ResourceNotFoundException("Cliente no encontrado"));
         return mapToResponse(client);

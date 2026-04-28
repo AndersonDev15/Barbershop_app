@@ -9,6 +9,7 @@ import com.barber.project.transaction.repository.BarberShopIncomeRepository;
 
 import com.barber.project.transaction.repository.projection.BarberIncomeSummary;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,6 +74,7 @@ public class BarberShopIncomeService {
     @Transactional(readOnly = true)
     public List<BarberIncomeSummary> findTopBarberIds(
             Long barbershopId, LocalDate start, LocalDate end, int limit) {
-        return barberShopIncomeRepository.findTopBarberIds(barbershopId, start, end, limit);
+        return barberShopIncomeRepository.findTopBarberIds(
+                barbershopId, start, end, PageRequest.of(0, limit));
     }
 }

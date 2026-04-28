@@ -8,15 +8,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    List<Notification> findByUserUuidOrderByCreatedAtDesc(String userUuid);
+    List<Notification> findByUserUuidOrderByCreatedAtDesc(UUID userUuid);
 
-    long countByUserUuidAndReadFalse(String userUuid);
+    long countByUserUuidAndReadFalse(UUID userUuid);
 
     @Modifying
     @Query("UPDATE Notification n SET n.read = true WHERE n.userUuid = :userUuid AND n.read = false")
-    void markAllAsRead(@Param("userUuid") String userUuid);
+    void markAllAsRead(@Param("userUuid") UUID userUuid);
 }

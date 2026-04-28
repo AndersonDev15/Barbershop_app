@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -115,7 +116,7 @@ public class PasswordManagementService {
     // ── Cambio de contraseña ─────────────────────────────────────────────────
 
     @Transactional
-    public void changePassword(String userUuid, ChangePasswordRequest request) {
+    public void changePassword(UUID userUuid, ChangePasswordRequest request) {
         if (!request.newPassword().equals(request.confirmNewPassword())) {
             throw new ValidationException("Las contraseñas no coinciden");
         }

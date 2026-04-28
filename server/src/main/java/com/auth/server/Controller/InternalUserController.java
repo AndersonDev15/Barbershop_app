@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("internal/users")
@@ -32,7 +33,7 @@ public class InternalUserController {
      */
     @PostMapping("/batch")
     public List<UserSummaryResponse> getUsersByUuids(
-            @RequestBody @NotEmpty List<@NotBlank String> uuids,
+            @RequestBody @NotEmpty List<@NotBlank UUID> uuids,
             HttpServletRequest request
     ){
 

@@ -6,7 +6,9 @@ import com.barber.project.barber.service.BarberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.rmi.server.UID;
 import java.time.LocalDate;
+import java.util.UUID;
 
 
 @Service
@@ -15,7 +17,7 @@ public class BarberDashboardService {
     private final BarberService barberService;
     private final BarberReportService barberReportService;
 
-    public BarberDashboardResponse dashboard(String userUuid) {
+    public BarberDashboardResponse dashboard(UUID userUuid) {
         Barber barber = barberService.getBarberByUserUuid(userUuid);
         LocalDate today = LocalDate.now();
         String fullName = barber.getUser().getFirstName() + " " + barber.getUser().getLastName();

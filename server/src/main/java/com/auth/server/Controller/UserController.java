@@ -1,6 +1,7 @@
 package com.auth.server.Controller;
 
 
+import com.auth.server.Config.jwt.CurrentUser;
 import com.auth.server.Dto.Request.UpdateUserRequest;
 import com.auth.server.Dto.Response.UserResponse;
 import com.auth.server.Service.AuthUserService;
@@ -20,9 +21,9 @@ public class UserController {
     @PutMapping("/me")
     public ResponseEntity<UserResponse> updateProfile(
             @Valid @RequestBody UpdateUserRequest request,
-            @AuthenticationPrincipal Jwt jwt) {
+            @AuthenticationPrincipal CurrentUser currentUser) {
         return ResponseEntity.ok(
-                authUserService.updateProfile(jwt.getClaimAsString("user_uuid"), request)
+                authUserService.updateProfile(currentUser.userUuid(), request)
         );
     }
 }

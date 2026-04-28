@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public CategoryResponse createService(CategoryRequest request, String owenerUuid){
+    public CategoryResponse createService(CategoryRequest request, UUID owenerUuid){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(owenerUuid);
         barberShopService.ensureActive(barberShop);
 
@@ -40,7 +41,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public CategoryResponse updateService(Long ServiceId, CategoryRequest request, String ownerUuid){
+    public CategoryResponse updateService(Long ServiceId, CategoryRequest request, UUID ownerUuid){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         barberShopService.ensureActive(barberShop);
         //obtener el servicio
@@ -63,7 +64,7 @@ public class CategoryService {
 
     //listar los servicios desde la barberia autenticada
     @Transactional(readOnly = true)
-    public List<CategoryResponse> listServicesOwner(String ownerUuid){
+    public List<CategoryResponse> listServicesOwner(UUID ownerUuid){
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         return categoryRepository.findByBarberShop(barberShop)
                 .stream()
@@ -83,7 +84,7 @@ public class CategoryService {
 
     // Activar servicio
     @Transactional
-    public void activateService(Long serviceId, String ownerUuid) {
+    public void activateService(Long serviceId, UUID ownerUuid) {
 
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         Category category = getCategoryByIdAndBarberShop(serviceId, barberShop);
@@ -97,7 +98,7 @@ public class CategoryService {
 
     // Desactivar servicio
     @Transactional
-    public void desactivateService(Long serviceId, String ownerUuid) {
+    public void desactivateService(Long serviceId, UUID ownerUuid) {
 
         BarberShop barberShop = barberShopService.getOwnerBarberShop(ownerUuid);
         Category category = getCategoryByIdAndBarberShop(serviceId, barberShop);

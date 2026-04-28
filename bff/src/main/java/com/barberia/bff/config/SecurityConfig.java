@@ -84,7 +84,7 @@ public class SecurityConfig {
         OidcClientInitiatedServerLogoutSuccessHandler handler =
                 new OidcClientInitiatedServerLogoutSuccessHandler(repository);
 
-        handler.setPostLogoutRedirectUri("http://127.0.0.1:9000/login");
+        handler.setPostLogoutRedirectUri("http://127.0.0.1:5173/login");
 
         return handler;
     }

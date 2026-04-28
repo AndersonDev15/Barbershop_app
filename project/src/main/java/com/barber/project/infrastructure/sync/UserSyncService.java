@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +54,7 @@ public class UserSyncService {
      * Obtener usuario del cache local
      */
     @Transactional(readOnly = true)
-    public User getUser(String userUuid) {
+    public User getUser(UUID userUuid) {
         return userRepository.findByUserUuid(userUuid)
                 .orElse(null);
     }
@@ -62,14 +63,14 @@ public class UserSyncService {
      * Obtener múltiples usuarios del cache local
      */
     @Transactional(readOnly = true)
-    public List<User> getUsers(List<String> userUuids) {
+    public List<User> getUsers(List<UUID> userUuids) {
         return userRepository.findByUserUuidIn(userUuids);
     }
 
     /**
      * Verificar si un usuario existe en el cache
      */
-    public boolean exists(String userUuid) {
+    public boolean exists(UUID userUuid) {
         return userRepository.existsByUserUuid(userUuid);
     }
 

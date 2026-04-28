@@ -2,8 +2,10 @@ package com.auth.server.Dto.Response;
 
 import com.auth.server.Entity.AuthIdentity;
 
+import java.util.UUID;
+
 public record UserResponse(
-        String userUuid,
+        UUID userUuid,
         String email,
         String firstName,
         String lastName,

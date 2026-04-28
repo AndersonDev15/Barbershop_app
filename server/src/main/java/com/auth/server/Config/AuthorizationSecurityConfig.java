@@ -1,5 +1,7 @@
 package com.auth.server.Config;
 
+import com.auth.server.Config.jwt.CurrentUser;
+import com.auth.server.Config.jwt.CurrentUserMapper;
 import com.auth.server.Entity.AuthIdentity;
 import com.auth.server.Entity.AuthRole;
 import com.auth.server.Exceptions.JwtAccessDeniedHandler;
@@ -15,7 +17,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,11 +30,13 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcUserInfoAuthenticationContext;
@@ -47,10 +54,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.auth.server.Security.InternalApiKeyFilter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -153,7 +158,9 @@ public class AuthorizationSecurityConfig {
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
                 .csrf(AbstractHttpConfigurer::disable)
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(Customizer.withDefaults())
+                        .jwt(jwt -> jwt
+                                .jwtAuthenticationConverter(jwtAuthConverter())
+                        )
                         .authenticationEntryPoint(jwtAuthEntryPoint)
                         .accessDeniedHandler(jwtAccessDeniedHandler));
         return http.build();
@@ -221,6 +228,24 @@ public class AuthorizationSecurityConfig {
     }
 
     @Bean
+    public Converter<Jwt, AbstractAuthenticationToken> jwtAuthConverter() {
+        return jwt -> {
+
+            CurrentUser currentUser = CurrentUserMapper.fromJwt(jwt);
+
+            Set<GrantedAuthority> authorities = currentUser.roles().stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                    .collect(Collectors.toSet());
+
+            return new UsernamePasswordAuthenticationToken(
+                    currentUser,
+                    jwt,
+                    authorities
+            );
+        };
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -257,10 +282,10 @@ public class AuthorizationSecurityConfig {
                                 "Usuario no encontrado en BD: " + email));
 
                 // Normalizar sub al UUID interno
-                context.getClaims().subject(identity.getUserUuid());
+                context.getClaims().subject(identity.getUserUuid().toString());
 
-                // Agregar user_uuid (opcional porque ya está en sub, pero útil)
-                context.getClaims().claim("user_uuid", identity.getUserUuid());
+                // Agregar user_uuid y email como claims personalizados
+                context.getClaims().claim("user_uuid", identity.getUserUuid().toString());
                 context.getClaims().claim("email",identity.getEmail());
 
 
