@@ -7,6 +7,10 @@ app:
 spring:
   config:
     import: optional:file:.env[.properties]
+  session:
+    store-type: redis
+    redis:
+      url: ${REDIS_URL:redis://localhost:6379}
   main:
     web-application-type: reactive
   application:
