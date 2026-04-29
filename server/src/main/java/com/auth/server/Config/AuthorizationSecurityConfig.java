@@ -73,6 +73,9 @@ public class AuthorizationSecurityConfig {
     @Value("${app.bff-url}")
     private String bffUrl;
 
+    @Value("${app.base-url}")
+    private String appBaseUrl;
+
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -220,7 +223,7 @@ public class AuthorizationSecurityConfig {
     @Bean
     AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .issuer("http://127.0.0.1:9000")
+                .issuer(appBaseUrl)
                 .build();
     }
 
