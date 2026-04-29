@@ -1,12 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-
+import api from "../../../../lib/api";
 interface BarberoSettingsModalProps {
   onClose: () => void;
 }
-
-const BASE_URL = "http://127.0.0.1:8090/api";
-const cfg = { withCredentials: true };
 
 type SettingsTab = "account" | "security";
 
@@ -39,10 +36,9 @@ export default function BarberoSettingsModal({
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Fetch profile data
     setLoading(true);
-    axios
-      .get(`${BASE_URL}/barber/profile`, cfg)
+    api
+      .get("/api/barber/profile")
       .then((res) => {
         const data = res.data;
         setFirstName(data.firstName);
@@ -65,11 +61,11 @@ export default function BarberoSettingsModal({
     setError(null);
     setSuccess(null);
     try {
-      await axios.put(
-        `${BASE_URL}/users/me`,
-        { firstName, lastName, phone },
-        cfg,
-      );
+      await api.put("/api/users/me", {
+        firstName,
+        lastName,
+        phone,
+      });
       setSuccess("Profile updated successfully!");
     } catch (err) {
       setError("Error updating profile.");
@@ -92,11 +88,11 @@ export default function BarberoSettingsModal({
     setError(null);
     setSuccess(null);
     try {
-      await axios.patch(
-        `${BASE_URL}/auth/change-password`,
-        { currentPassword, newPassword, confirmNewPassword: confirmPassword },
-        cfg,
-      );
+      await api.patch("/api/auth/change-password", {
+        currentPassword,
+        newPassword,
+        confirmNewPassword: confirmPassword,
+      });
       setSuccess("Password changed successfully!");
       setCurrentPassword("");
       setNewPassword("");

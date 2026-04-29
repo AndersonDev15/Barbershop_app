@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { useAuthStore } from "../features/auth/authStore";
-
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 export default function HomePage() {
+  const { t } = useTranslation();
   const { isAuthenticated, isLoading, user } = useAuthStore();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -26,16 +28,20 @@ export default function HomePage() {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = `${
-      import.meta.env.VITE_BFF_URL ?? "http://127.0.0.1:8090"
-    }/oauth2/authorization/barberia-client`;
+    const baseUrl = import.meta.env.VITE_BFF_URL;
+
+    if (!baseUrl) {
+      throw new Error("VITE_BFF_URL no está definida");
+    }
+
+    window.location.href = `${baseUrl}/oauth2/authorization/barberia-client`;
   };
 
   // Mientras valida sesión
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface text-on-surface">
-        <span className="animate-pulse">Cargando...</span>
+        <span className="animate-pulse">{t("landing.loading")}</span>
       </div>
     );
   }
@@ -75,35 +81,36 @@ export default function HomePage() {
                 href="#inicio"
                 className="text-sm font-body text-on-surface-variant hover:text-primary transition-colors"
               >
-                Inicio
+                {t("landing.nav.inicio")}
               </a>
               <a
                 href="#como-funciona"
                 className="text-sm font-body text-on-surface-variant hover:text-primary transition-colors"
               >
-                Cómo funciona
+                {t("landing.nav.comoFunciona")}
               </a>
               <a
                 href="#roles"
                 className="text-sm font-body text-on-surface-variant hover:text-primary transition-colors"
               >
-                Roles
+                {t("landing.nav.roles")}
               </a>
             </div>
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
               <button
                 onClick={handleLogin}
                 className="hidden sm:block px-4 py-2 text-sm font-body text-on-surface hover:text-primary transition-colors"
               >
-                Iniciar sesión
+                {t("landing.nav.iniciarSesion")}
               </button>
               <button
                 onClick={handleLogin}
                 className="px-5 py-2 bg-primary text-on-primary rounded-full text-sm font-bold hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all active:scale-95"
               >
-                Registrar mi barbería
+                {t("landing.nav.registrarBarberia")}
               </button>
             </div>
           </div>
@@ -119,20 +126,19 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <h1 className="text-5xl md:text-6xl font-headline font-bold leading-tight">
-                Maneja tu barbería en <br />
+                {t("landing.hero.titulo1")} <br />
                 <span className="bg-gradient-to-r from-primary to-on-surface-variant bg-clip-text text-transparent">
-                  un solo lugar
+                  {t("landing.hero.titulo2")}
                 </span>
               </h1>
               <p className="text-xl text-on-surface-variant font-body max-w-lg leading-relaxed">
-                Automatiza reservas, gestiona tu equipo y controla tus ingresos
-                sin desorden.
+                {t("landing.hero.subtitulo")}
               </p>
               <button
                 onClick={handleLogin}
                 className="px-8 py-4 bg-primary text-on-primary rounded-full text-lg font-bold hover:scale-105 active:scale-95 transition-all shadow-lg"
               >
-                Registrar mi barbería
+                {t("landing.hero.cta")}
               </button>
             </div>
 
@@ -176,40 +182,16 @@ export default function HomePage() {
       <section className="py-24 bg-surface-container-lowest/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-headline font-bold mb-16">
-            Potencia tu flujo de trabajo
+            {t("landing.features.titulo")}
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              {
-                icon: "group",
-                title: "Gestión de Barberos",
-                desc: "Invita a tu equipo y gestiona sus perfiles. Cada barbero tiene su propio espacio de trabajo bajo tu supervisión.",
-              },
-              {
-                icon: "event_available",
-                title: "Reservas Directas",
-                desc: "Tus clientes te encuentran en la plataforma y agendan en segundos sin necesidad de llamadas o mensajes tediosos.",
-              },
-              {
-                icon: "mail",
-                title: "Emails Automáticos",
-                desc: "Recordatorios de citas y confirmaciones automáticas para reducir ausencias y mantener a tus clientes informados.",
-              },
-              {
-                icon: "payments",
-                title: "Pagos y Propinas",
-                desc: "Gestión digital de cada transacción y propina recibida. Transparencia total para ti y para tu equipo.",
-              },
-              {
-                icon: "analytics",
-                title: "Reportes de Ingresos",
-                desc: "Visualiza el crecimiento de tu negocio con gráficos detallados por día, semana o mes.",
-              },
-              {
-                icon: "schedule",
-                title: "Horarios Flexibles",
-                desc: "Los barberos siguen el horario de la barbería. Si un barbero no puede en algún momento, bloquea ese espacio con un descanso.",
-              },
+              { icon: "group" },
+              { icon: "event_available" },
+              { icon: "mail" },
+              { icon: "payments" },
+              { icon: "analytics" },
+              { icon: "schedule" },
             ].map((f, i) => (
               <div
                 key={i}
@@ -219,10 +201,10 @@ export default function HomePage() {
                   {f.icon}
                 </span>
                 <h3 className="text-xl font-headline font-bold mb-3">
-                  {f.title}
+                  {t(`landing.features.items.${i}.titulo`)}
                 </h3>
                 <p className="text-on-surface-variant font-body leading-relaxed">
-                  {f.desc}
+                  {t(`landing.features.items.${i}.desc`)}
                 </p>
               </div>
             ))}
@@ -234,35 +216,19 @@ export default function HomePage() {
       <section id="como-funciona" className="py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <span className="text-primary font-bold tracking-widest text-xs uppercase mb-4 block">
-            El Proceso
+            {t("landing.howItWorks.etiqueta")}
           </span>
           <h2 className="text-3xl md:text-4xl font-headline font-bold mb-20">
-            Cómo funciona
+            {t("landing.howItWorks.titulo")}
           </h2>
 
           <div className="relative grid md:grid-cols-3 gap-12">
-            {/* Connecting Line */}
             <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-[2px] border-t-2 border-dashed border-primary/30 z-0"></div>
 
             {[
-              {
-                step: "1",
-                icon: "store",
-                title: "Registra tu barbería",
-                desc: "Configura tu perfil, servicios y ubicación en menos de 5 minutos.",
-              },
-              {
-                step: "2",
-                icon: "person_add",
-                title: "Invita a tus barberos",
-                desc: "Tus profesionales reciben acceso para manejar su agenda y ver sus días.",
-              },
-              {
-                step: "3",
-                icon: "calendar_month",
-                title: "Recibe reservas",
-                desc: "Los clientes encuentran la barbería en la plataforma y agendan directamente eligiendo barbero, servicios y horario.",
-              },
+              { step: "1", icon: "store" },
+              { step: "2", icon: "person_add" },
+              { step: "3", icon: "calendar_month" },
             ].map((s, i) => (
               <div key={i} className="relative z-10 space-y-6 group">
                 <div className="w-24 h-24 rounded-full bg-surface-container-low border border-outline-variant flex items-center justify-center mx-auto group-hover:border-primary transition-colors">
@@ -270,9 +236,11 @@ export default function HomePage() {
                     {s.icon}
                   </span>
                 </div>
-                <h3 className="text-xl font-headline font-bold">{s.title}</h3>
+                <h3 className="text-xl font-headline font-bold">
+                  {t(`landing.howItWorks.pasos.${i}.titulo`)}
+                </h3>
                 <p className="text-on-surface-variant font-body leading-relaxed max-w-[280px] mx-auto">
-                  {s.desc}
+                  {t(`landing.howItWorks.pasos.${i}.desc`)}
                 </p>
               </div>
             ))}
@@ -284,118 +252,38 @@ export default function HomePage() {
       <section id="roles" className="py-24 bg-surface-container-lowest/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4">
-            Experiencia a medida
+            {t("landing.rolesSection.titulo")}
           </h2>
           <p className="text-on-surface-variant mb-16">
-            Una plataforma, tres visiones optimizadas.
+            {t("landing.rolesSection.subtitulo")}
           </p>
 
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Dueño */}
-            <div className="bg-surface-container-low rounded-3xl border border-outline-variant overflow-hidden flex flex-col h-full hover:border-primary/50 transition-colors">
-              <div className="h-2 bg-primary"></div>
-              <div className="p-8 flex-grow text-left">
-                <h3 className="text-2xl font-headline font-bold mb-6">Dueño</h3>
-                <ul className="space-y-4">
-                  <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-primary text-sm mt-1">
-                      check_circle
-                    </span>
-                    <span className="text-on-surface-variant font-body">
-                      Visibilidad total de ingresos
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-primary text-sm mt-1">
-                      check_circle
-                    </span>
-                    <span className="text-on-surface-variant font-body">
-                      Gestión completa del equipo de barberos
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-primary text-sm mt-1">
-                      check_circle
-                    </span>
-                    <span className="text-on-surface-variant font-body">
-                      Reportes diarios, semanales y mensuales
-                    </span>
-                  </li>
-                </ul>
+            {["dueno", "barbero", "cliente"].map((rol) => (
+              <div
+                key={rol}
+                className="bg-surface-container-low rounded-3xl border border-outline-variant overflow-hidden flex flex-col h-full hover:border-primary/50 transition-colors"
+              >
+                <div className="h-2 bg-primary"></div>
+                <div className="p-8 flex-grow text-left">
+                  <h3 className="text-2xl font-headline font-bold mb-6">
+                    {t(`landing.rolesSection.${rol}.titulo`)}
+                  </h3>
+                  <ul className="space-y-4">
+                    {[0, 1, 2].map((i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="material-symbols-outlined text-primary text-sm mt-1">
+                          check_circle
+                        </span>
+                        <span className="text-on-surface-variant font-body">
+                          {t(`landing.rolesSection.${rol}.items.${i}`)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            </div>
-
-            {/* Barbero */}
-            <div className="bg-surface-container-low rounded-3xl border border-outline-variant overflow-hidden flex flex-col h-full hover:border-primary/50 transition-colors">
-              <div className="h-2 bg-primary"></div>
-              <div className="p-8 flex-grow text-left">
-                <h3 className="text-2xl font-headline font-bold mb-6">
-                  Barbero
-                </h3>
-                <ul className="space-y-4">
-                  <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-primary text-sm mt-1">
-                      check_circle
-                    </span>
-                    <span className="text-on-surface-variant font-body">
-                      Agenda personal interactiva
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-primary text-sm mt-1">
-                      check_circle
-                    </span>
-                    <span className="text-on-surface-variant font-body">
-                      Historial de citas realizadas
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-primary text-sm mt-1">
-                      check_circle
-                    </span>
-                    <span className="text-on-surface-variant font-body">
-                      Control de ganancias y propinas
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Cliente */}
-            <div className="bg-surface-container-low rounded-3xl border border-outline-variant overflow-hidden flex flex-col h-full hover:border-primary/50 transition-colors">
-              <div className="h-2 bg-primary"></div>
-              <div className="p-8 flex-grow text-left">
-                <h3 className="text-2xl font-headline font-bold mb-6">
-                  Cliente
-                </h3>
-                <ul className="space-y-4">
-                  <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-primary text-sm mt-1">
-                      check_circle
-                    </span>
-                    <span className="text-on-surface-variant font-body">
-                      Encuentra barberías cerca activando su ubicación
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-primary text-sm mt-1">
-                      check_circle
-                    </span>
-                    <span className="text-on-surface-variant font-body">
-                      Elige a su barbero favorito
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-primary text-sm mt-1">
-                      check_circle
-                    </span>
-                    <span className="text-on-surface-variant font-body">
-                      Elige barbero, servicios y horario
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -404,16 +292,16 @@ export default function HomePage() {
       <section className="py-24 bg-surface border-y border-outline-variant">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
           <h2 className="text-4xl md:text-5xl font-headline font-bold">
-            ¿Listo para profesionalizar tu barbería?
+            {t("landing.cta.titulo")}
           </h2>
           <p className="text-xl text-on-surface-variant font-body">
-            Empieza hoy y pon tu negocio en orden.
+            {t("landing.cta.subtitulo")}
           </p>
           <button
             onClick={handleLogin}
             className="px-10 py-5 bg-primary text-on-primary rounded-full text-xl font-bold hover:scale-105 transition-all shadow-xl"
           >
-            Registrar mi barbería
+            {t("landing.cta.boton")}
           </button>
         </div>
       </section>
@@ -427,29 +315,23 @@ export default function HomePage() {
                 BarberOS
               </span>
               <p className="text-on-surface-variant font-body">
-                El estándar de oro en gestión de barberías.
+                {t("landing.footer.slogan")}
               </p>
             </div>
             <div className="flex flex-wrap gap-8 text-sm font-body text-on-surface-variant">
               <a href="#" className="hover:text-primary transition-colors">
-                Privacidad
+                {t("landing.footer.privacidad")}
               </a>
               <a href="#" className="hover:text-primary transition-colors">
-                Términos
+                {t("landing.footer.terminos")}
               </a>
               <a href="#" className="hover:text-primary transition-colors">
-                Soporte
+                {t("landing.footer.soporte")}
               </a>
             </div>
           </div>
           <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm font-body text-on-surface-variant/60">
-            <p>© 2026 BarberOS</p>
-            <Link
-              to="/forgot-password"
-              className="hover:text-primary transition-colors"
-            >
-              ¿Olvidaste tu contraseña?
-            </Link>
+            <p>{t("landing.footer.copyright")}</p>
           </div>
         </div>
       </footer>

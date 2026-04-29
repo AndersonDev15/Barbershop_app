@@ -1,0 +1,106 @@
+{
+  "landing": {
+    "nav": {
+      "inicio": "Inicio",
+      "comoFunciona": "Cómo funciona",
+      "roles": "Roles",
+      "iniciarSesion": "Iniciar sesión",
+      "registrarBarberia": "Registrar mi barbería"
+    },
+    "hero": {
+      "titulo1": "Maneja tu barbería en",
+      "titulo2": "un solo lugar",
+      "subtitulo": "Automatiza reservas, gestiona tu equipo y controla tus ingresos sin desorden.",
+      "cta": "Registrar mi barbería"
+    },
+    "features": {
+      "titulo": "Potencia tu flujo de trabajo",
+      "items": [
+        {
+          "titulo": "Gestión de Barberos",
+          "desc": "Invita a tu equipo y gestiona sus perfiles. Cada barbero tiene su propio espacio de trabajo bajo tu supervisión."
+        },
+        {
+          "titulo": "Reservas Directas",
+          "desc": "Tus clientes te encuentran en la plataforma y agendan en segundos sin necesidad de llamadas o mensajes tediosos."
+        },
+        {
+          "titulo": "Emails Automáticos",
+          "desc": "Recordatorios de citas y confirmaciones automáticas para reducir ausencias y mantener a tus clientes informados."
+        },
+        {
+          "titulo": "Pagos y Propinas",
+          "desc": "Gestión digital de cada transacción y propina recibida. Transparencia total para ti y para tu equipo."
+        },
+        {
+          "titulo": "Reportes de Ingresos",
+          "desc": "Visualiza el crecimiento de tu negocio con gráficos detallados por día, semana o mes."
+        },
+        {
+          "titulo": "Horarios Flexibles",
+          "desc": "Los barberos siguen el horario de la barbería. Si un barbero no puede en algún momento, bloquea ese espacio con un descanso."
+        }
+      ]
+    },
+    "howItWorks": {
+      "etiqueta": "El Proceso",
+      "titulo": "Cómo funciona",
+      "pasos": [
+        {
+          "titulo": "Registra tu barbería",
+          "desc": "Configura tu perfil, servicios y ubicación en menos de 5 minutos."
+        },
+        {
+          "titulo": "Invita a tus barberos",
+          "desc": "Tus profesionales reciben acceso para manejar su agenda y ver sus días."
+        },
+        {
+          "titulo": "Recibe reservas",
+          "desc": "Los clientes encuentran la barbería en la plataforma y agendan directamente eligiendo barbero, servicios y horario."
+        }
+      ]
+    },
+    "rolesSection": {
+      "titulo": "Experiencia a medida",
+      "subtitulo": "Una plataforma, tres visiones optimizadas.",
+      "dueno": {
+        "titulo": "Dueño",
+        "items": [
+          "Visibilidad total de ingresos",
+          "Gestión completa del equipo de barberos",
+          "Reportes diarios, semanales y mensuales"
+        ]
+      },
+      "barbero": {
+        "titulo": "Barbero",
+        "items": [
+          "Agenda personal interactiva",
+          "Historial de citas realizadas",
+          "Control de ganancias y propinas"
+        ]
+      },
+      "cliente": {
+        "titulo": "Cliente",
+        "items": [
+          "Encuentra barberías cerca activando su ubicación",
+          "Elige a su barbero favorito",
+          "Elige barbero, servicios y horario"
+        ]
+      }
+    },
+    "cta": {
+      "titulo": "¿Listo para profesionalizar tu barbería?",
+      "subtitulo": "Empieza hoy y pon tu negocio en orden.",
+      "boton": "Registrar mi barbería"
+    },
+    "footer": {
+      "slogan": "El estándar de oro en gestión de barberías.",
+      "privacidad": "Privacidad",
+      "terminos": "Términos",
+      "soporte": "Soporte",
+      "copyright": "© 2026 BarberOS",
+      "olvidastePassword": "¿Olvidaste tu contraseña?"
+    },
+    "loading": "Cargando..."
+  }
+}

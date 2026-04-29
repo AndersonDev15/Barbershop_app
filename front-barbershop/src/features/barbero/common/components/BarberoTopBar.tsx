@@ -8,6 +8,8 @@ import {
   formatNotificationTime,
 } from "../../../../utils/notificationMapper";
 
+import api from "../../../../lib/api";
+
 export default function BarberoTopBar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -35,14 +37,11 @@ export default function BarberoTopBar() {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://127.0.0.1:8090/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      await api.post("/logout");
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
-      window.location.href = "http://127.0.0.1:5173/";
+      window.location.href = "/";
     }
   };
 

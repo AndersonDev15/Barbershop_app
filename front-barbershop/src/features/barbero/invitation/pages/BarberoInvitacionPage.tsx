@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import type { InvitationDetailsResponse } from "../../types/invitacion.types";
 import { useAuthStore } from "../../../auth/authStore";
+import api from "../../../../lib/api";
 
 export default function BarberoInvitacionPage() {
   const { token } = useParams<{ token: string }>();
@@ -23,23 +24,19 @@ export default function BarberoInvitacionPage() {
     if (isLoading) return;
 
     if (!isAuthenticated) {
-      // ✅ Guardar token solo para este flujo
+      // Guardar token para después del login
       sessionStorage.setItem("pendingInvitationToken", token);
 
-      window.location.href =
-        "http://127.0.0.1:8090/oauth2/authorization/barberia-client";
+      window.location.href = `${import.meta.env.VITE_BFF_URL}/oauth2/authorization/barberia-client`;
 
       return;
     }
 
-    // ✅ Ya autenticado → eliminar token (evita loops)
+    // Ya autenticado → evitar loops
     sessionStorage.removeItem("pendingInvitationToken");
 
-    axios
-      .get<InvitationDetailsResponse>(
-        `http://127.0.0.1:8090/api/barber/invitations/${token}`,
-        { withCredentials: true },
-      )
+    api
+      .get<InvitationDetailsResponse>(`/api/barber/invitations/${token}`)
       .then((res) => {
         setData(res.data);
         setLoading(false);
@@ -55,12 +52,9 @@ export default function BarberoInvitacionPage() {
 
   const handleAccept = () => {
     if (!token) return;
-    axios
-      .post(
-        `http://127.0.0.1:8090/api/barber/invitations/${token}/accept`,
-        {},
-        { withCredentials: true },
-      )
+
+    api
+      .post(`/api/barber/invitations/${token}/accept`)
       .then(() => {
         setDecision("accepted");
         setTimeout(() => {
@@ -74,12 +68,9 @@ export default function BarberoInvitacionPage() {
 
   const handleReject = () => {
     if (!token) return;
-    axios
-      .post(
-        `http://127.0.0.1:8090/api/barber/invitations/${token}/reject`,
-        {},
-        { withCredentials: true },
-      )
+
+    api
+      .post(`/api/barber/invitations/${token}/reject`)
       .then(() => {
         setDecision("declined");
       })

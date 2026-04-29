@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import api from "../../lib/api";
 
 export type UserRole = "ROLE_CLIENTE" | "ROLE_BARBERO" | "ROLE_BARBERIA";
 
@@ -32,8 +33,7 @@ interface AuthState {
   // Actualiza el nombre de la barbería
   setBarberShopName: (name: string) => void;
 }
-
-const BFF_URL = import.meta.env.VITE_BFF_URL ?? "http://127.0.0.1:8090";
+const BFF_URL = import.meta.env.VITE_BFF_URL;
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
   user: null,
@@ -43,25 +43,16 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   checkAuth: async () => {
     set({ isLoading: true });
     try {
-      const res = await fetch(`${BFF_URL}/auth/status`, {
-        credentials: "include",
-      });
-      const data = await res.json();
+      const { data } = await api.get("/auth/status");
 
       if (data.authenticated) {
-        const infoRes = await fetch(`${BFF_URL}/userinfo`, {
-          credentials: "include",
-        });
-        const info = await infoRes.json();
-        
-        // Fetch additional shop info if role is ROLE_BARBERIA
+        const { data: info } = await api.get("/userinfo");
+
         let barberShopName = undefined;
+
         if (info.roles.includes("ROLE_BARBERIA")) {
           try {
-            const meRes = await fetch(`${BFF_URL}/auth/me`, {
-              credentials: "include",
-            });
-            const meData = await meRes.json();
+            const { data: meData } = await api.get("/auth/me");
             barberShopName = meData.barberShopName;
           } catch (e) {
             console.error("Error fetching shop name:", e);
@@ -79,7 +70,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
             phone_number: info.phone_number ?? "",
             isGoogleUser: info.is_google_user ?? false,
             coverImageUrl: info.coverImageUrl,
-            barberShopName: barberShopName,
+            barberShopName,
           },
           isAuthenticated: true,
           isLoading: false,
@@ -94,15 +85,12 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   },
 
   login: () => {
-    window.location.href = `${BFF_URL}/oauth2/authorization/barberia-client`;
+    window.location.href = `${import.meta.env.VITE_BFF_URL}/oauth2/authorization/barberia-client`;
   },
 
   logout: async () => {
     try {
-      await fetch(`${BFF_URL}/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
+      await api.post("/logout");
     } finally {
       set({ user: null, isAuthenticated: false });
       window.location.href = "/";

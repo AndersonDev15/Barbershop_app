@@ -1,13 +1,17 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../auth/authStore";
 import Avatar from "../../../../components/ui/Avatar";
-
+import api from "../../../../lib/api";
 const navItems = [
   { icon: "dashboard", label: "Dashboard", path: "/barberia/home" },
   { icon: "content_cut", label: "Barbers", path: "/barberia/barberos" },
   { icon: "dry_cleaning", label: "Services", path: "/barberia/servicios" },
   { icon: "calendar_today", label: "Schedule", path: "/barberia/agenda" },
-  { icon: "notifications", label: "Notifications", path: "/barberia/notifications" },
+  {
+    icon: "notifications",
+    label: "Notifications",
+    path: "/barberia/notifications",
+  },
 ];
 
 interface SidebarProps {
@@ -25,14 +29,11 @@ export default function Sidebar({
 
   async function handleLogout() {
     try {
-      await fetch("http://127.0.0.1:8090/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      await api.post("/logout");
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
-      window.location.href = "http://127.0.0.1:5173/";
+      window.location.href = "/";
     }
   }
 

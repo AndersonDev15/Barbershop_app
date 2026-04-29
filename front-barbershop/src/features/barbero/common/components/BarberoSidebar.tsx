@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useAuthStore } from "../../../auth/authStore";
-
+import api from "../../../../lib/api";
 export type BarberoView =
   | "performance"
   | "availability"
@@ -78,14 +78,11 @@ export default function BarberoSidebar({ onViewChange }: BarberoSidebarProps) {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://127.0.0.1:8090/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      await api.post("/logout");
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
-      window.location.href = "http://127.0.0.1:5173/";
+      window.location.href = "/";
     }
   };
 

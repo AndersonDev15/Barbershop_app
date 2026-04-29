@@ -1,0 +1,106 @@
+{
+  "landing": {
+    "nav": {
+      "inicio": "Home",
+      "comoFunciona": "How it works",
+      "roles": "Roles",
+      "iniciarSesion": "Log in",
+      "registrarBarberia": "Register my barbershop"
+    },
+    "hero": {
+      "titulo1": "Manage your barbershop in",
+      "titulo2": "one place",
+      "subtitulo": "Automate bookings, manage your team and track your income without the chaos.",
+      "cta": "Register my barbershop"
+    },
+    "features": {
+      "titulo": "Supercharge your workflow",
+      "items": [
+        {
+          "titulo": "Barber Management",
+          "desc": "Invite your team and manage their profiles. Each barber has their own workspace under your supervision."
+        },
+        {
+          "titulo": "Direct Bookings",
+          "desc": "Your clients find you on the platform and book in seconds without calls or tedious messages."
+        },
+        {
+          "titulo": "Automatic Emails",
+          "desc": "Appointment reminders and automatic confirmations to reduce no-shows and keep your clients informed."
+        },
+        {
+          "titulo": "Payments & Tips",
+          "desc": "Digital management of every transaction and tip received. Full transparency for you and your team."
+        },
+        {
+          "titulo": "Income Reports",
+          "desc": "Visualize your business growth with detailed charts by day, week or month."
+        },
+        {
+          "titulo": "Flexible Schedules",
+          "desc": "Barbers follow the barbershop schedule. If a barber is unavailable at some point, they block that slot with a break."
+        }
+      ]
+    },
+    "howItWorks": {
+      "etiqueta": "The Process",
+      "titulo": "How it works",
+      "pasos": [
+        {
+          "titulo": "Register your barbershop",
+          "desc": "Set up your profile, services and location in under 5 minutes."
+        },
+        {
+          "titulo": "Invite your barbers",
+          "desc": "Your professionals get access to manage their schedule and view their days."
+        },
+        {
+          "titulo": "Receive bookings",
+          "desc": "Clients find your barbershop on the platform and book directly choosing barber, services and time."
+        }
+      ]
+    },
+    "rolesSection": {
+      "titulo": "Tailored experience",
+      "subtitulo": "One platform, three optimized views.",
+      "dueno": {
+        "titulo": "Owner",
+        "items": [
+          "Full income visibility",
+          "Complete barber team management",
+          "Daily, weekly and monthly reports"
+        ]
+      },
+      "barbero": {
+        "titulo": "Barber",
+        "items": [
+          "Interactive personal schedule",
+          "History of completed appointments",
+          "Earnings and tips tracking"
+        ]
+      },
+      "cliente": {
+        "titulo": "Client",
+        "items": [
+          "Find nearby barbershops by enabling location",
+          "Choose your favorite barber",
+          "Pick barber, services and time slot"
+        ]
+      }
+    },
+    "cta": {
+      "titulo": "Ready to professionalize your barbershop?",
+      "subtitulo": "Start today and get your business in order.",
+      "boton": "Register my barbershop"
+    },
+    "footer": {
+      "slogan": "The gold standard in barbershop management.",
+      "privacidad": "Privacy",
+      "terminos": "Terms",
+      "soporte": "Support",
+      "copyright": "© 2026 BarberOS",
+      "olvidastePassword": "Forgot your password?"
+    },
+    "loading": "Loading..."
+  }
+}

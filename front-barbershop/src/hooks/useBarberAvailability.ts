@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../lib/api";
 
 export interface AvailabilitySlot {
   time: string;
@@ -23,14 +23,15 @@ export function useBarberAvailability(date?: string) {
     const fetchAvailability = async () => {
       setLoading(true);
       setError(null);
+
       try {
-        const response = await axios.get<BarberAvailabilityResponse>(
-          "http://127.0.0.1:8090/api/barber/availability",
+        const response = await api.get<BarberAvailabilityResponse>(
+          "/api/barber/availability",
           {
             params: { date },
-            withCredentials: true,
-          }
+          },
         );
+
         setData(response.data);
       } catch (err) {
         setError("No se pudo cargar la disponibilidad");
