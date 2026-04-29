@@ -1,10 +1,12 @@
 server:
   port: 9000
+  forward-headers-strategy: framework
 
 app:
   base-url: ${APP_BASE_URL:http://127.0.0.1:9000}
   frontend-url: ${APP_FRONTEND_URL:http://127.0.0.1:5173}
   redirect-uri: ${APP_REDIRECT_URI:http://127.0.0.1:8090/login/oauth2/code/barberia-client}
+  bff-url: ${APP_BFF_URL:http://127.0.0.1:8090}
 
 spring:
   config:

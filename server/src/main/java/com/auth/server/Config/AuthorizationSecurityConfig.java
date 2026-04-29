@@ -14,6 +14,7 @@ import com.auth.server.Service.FederatedIdentityService;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -68,6 +69,9 @@ public class AuthorizationSecurityConfig {
     private final FederatedIdentityRepository federatedIdentityRepository;
     private final FederatedIdentityService federatedIdentityService;
     private final InternalApiKeyFilter internalApiKeyFilter;
+
+    @Value("${app.bff-url}")
+    private String bffUrl;
 
     @Bean
     @Order(1)
@@ -191,7 +195,7 @@ public class AuthorizationSecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("http://127.0.0.1:8090", false)
+                        .defaultSuccessUrl(bffUrl, false)
                         .permitAll()
                 )
                 .oauth2Login(oauth2Login -> oauth2Login
