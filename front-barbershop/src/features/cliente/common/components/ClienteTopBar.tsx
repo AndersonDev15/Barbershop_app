@@ -40,7 +40,11 @@ export default function ClienteTopBar() {
   const { notifications, unreadCount, markAsRead } = useNotificationBell();
 
   const handleLogout = () => {
-    window.location.href = `${import.meta.env.VITE_BFF_URL}/logout`;
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `${import.meta.env.VITE_BFF_URL}/logout`;
+    document.body.appendChild(form);
+    form.submit();
   };
 
   const isDiscovery = location.pathname === "/cliente/discovery";
