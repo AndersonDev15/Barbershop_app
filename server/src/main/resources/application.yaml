@@ -9,6 +9,11 @@ app:
   bff-url: ${APP_BFF_URL:http://127.0.0.1:8090}
 
 spring:
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: always
+      schema: classpath:org/springframework/session/jdbc/schema-postgresql.sql
   config:
     import: optional:file:.env[.properties]
 
