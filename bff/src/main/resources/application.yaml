@@ -11,6 +11,11 @@ spring:
     store-type: redis
     redis:
       url: ${REDIS_URL:redis://localhost:6379}
+  data:
+    redis:
+      url: ${REDIS_URL:redis://localhost:6379}
+      ssl:
+        enabled: true
   main:
     web-application-type: reactive
   application:
