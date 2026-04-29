@@ -39,14 +39,8 @@ export default function ClienteTopBar() {
 
   const { notifications, unreadCount, markAsRead } = useNotificationBell();
 
-  const handleLogout = async () => {
-    try {
-      await api.post("/logout");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
-      window.location.href = "/";
-    }
+  const handleLogout = () => {
+    window.location.href = `${import.meta.env.VITE_BFF_URL}/logout`;
   };
 
   const isDiscovery = location.pathname === "/cliente/discovery";
