@@ -1,6 +1,7 @@
 package com.barberia.bff.config;
 
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.factory.TokenRelayGatewayFilterFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +33,9 @@ import java.util.List;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
+    @Value("${app.frontend-url:http://127.0.0.1:5173}")
+    private String frontendUrl;
+
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(
             ServerHttpSecurity http,
@@ -52,7 +56,7 @@ public class SecurityConfig {
                 .oauth2Login(login -> login
                         .authorizationRequestResolver(authorizationRequestResolver(clientRegistrationRepository))
                         .authenticationSuccessHandler(
-                                new RedirectServerAuthenticationSuccessHandler("http://127.0.0.1:5173/auth/callback")
+                                new RedirectServerAuthenticationSuccessHandler(frontendUrl + "/auth/callback")
                         )
                 )
                 .logout(logout -> logout
@@ -67,7 +71,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://127.0.0.1:5173", "http://localhost:5173"));
+        config.setAllowedOrigins(List.of(frontendUrl, "http://127.0.0.1:5173", "http://localhost:5173"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -84,7 +88,7 @@ public class SecurityConfig {
         OidcClientInitiatedServerLogoutSuccessHandler handler =
                 new OidcClientInitiatedServerLogoutSuccessHandler(repository);
 
-        handler.setPostLogoutRedirectUri("http://127.0.0.1:5173/login");
+        handler.setPostLogoutRedirectUri(frontendUrl + "/login");
 
         return handler;
     }
