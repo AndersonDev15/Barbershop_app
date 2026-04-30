@@ -110,6 +110,7 @@ const EditCommissionModal: React.FC<EditCommissionModalProps> = ({
                 max="100"
                 value={commission}
                 onChange={(e) => setCommission(Number(e.target.value))}
+                onFocus={(e) => e.target.select()}
                 disabled={isLoading}
                 className="w-full bg-[#353534] border-none focus:ring-2 focus:ring-[#f2ca50]/50 rounded-lg py-4 px-5 text-xl font-['Manrope'] font-bold text-[#f2ca50] placeholder-[#d0c5af]/30 outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none disabled:opacity-50"
                 placeholder="50"

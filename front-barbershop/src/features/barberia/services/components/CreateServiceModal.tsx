@@ -156,6 +156,7 @@ const CreateServiceModal: React.FC<CreateServiceModalProps> = ({
                     type="number"
                     value={price}
                     onChange={(e) => setPrice(Number(e.target.value))}
+                    onFocus={(e) => e.target.select()}
                     className="w-full bg-[#2a2a2a] border-none rounded-full pl-9 pr-5 py-3 text-[#e5e2e1] focus:ring-2 focus:ring-[#f2ca50] outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>

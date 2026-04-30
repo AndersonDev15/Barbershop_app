@@ -160,6 +160,7 @@ export default function ClientePaymentModal({
                     onChange={(e) =>
                       setTip(Math.max(0, parseInt(e.target.value) || 0))
                     }
+                    onFocus={(e) => e.target.select()}
                     className="w-full bg-surface-container-highest border border-outline-variant/10 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>

@@ -550,22 +550,13 @@ export default function BarberiaSchedulePage() {
                         } ${!day.open ? "opacity-30" : ""}`}
                       >
                         <span
-                          className={`block text-[0.65rem] uppercase tracking-widest mb-1 ${
+                          className={`block text-[0.65rem] uppercase tracking-widest ${
                             selectedDayIndex === index
                               ? "text-[#d4af37] font-bold"
                               : "text-[#99907c]"
                           }`}
                         >
                           {day.day.substring(0, 3)}
-                        </span>
-                        <span
-                          className={`text-xl font-['Manrope'] font-extrabold ${
-                            selectedDayIndex === index
-                              ? "text-[#d4af37]"
-                              : "text-[#e5e2e1]"
-                          }`}
-                        >
-                          {11 + index}
                         </span>
                       </div>
                     ))}

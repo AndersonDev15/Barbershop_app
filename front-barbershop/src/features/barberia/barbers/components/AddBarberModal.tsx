@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import api from "../../../../lib/api";
-import type { InvitationStatus, BarberInvitationResponse } from "../../types/barbers.types";
+import type {
+  InvitationStatus,
+  BarberInvitationResponse,
+} from "../../types/barbers.types";
 
 interface AddBarberModalProps {
   isOpen: boolean;
@@ -27,7 +30,9 @@ const AddBarberModal: React.FC<AddBarberModalProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Invitations list state
-  const [invitations, setInvitations] = useState<BarberInvitationResponse[]>([]);
+  const [invitations, setInvitations] = useState<BarberInvitationResponse[]>(
+    [],
+  );
   const [isLoadingInvitations, setIsLoadingInvitations] = useState(false);
   const [invitationsError, setInvitationsError] = useState<string | null>(null);
   const [cancelingToken, setCancelingToken] = useState<string | null>(null);
@@ -54,14 +59,14 @@ const AddBarberModal: React.FC<AddBarberModalProps> = ({
     setInvitationsError(null);
     try {
       const response = await api.get<BarberInvitationResponse[]>(
-        "/api/barbershop/invitations"
+        "/api/barbershop/invitations",
       );
       setInvitations(response.data);
     } catch (err: any) {
       console.error("Error fetching invitations:", err);
       setInvitationsError(
         err.response?.data?.message ||
-          "Failed to load invitations. Please try again."
+          "Failed to load invitations. Please try again.",
       );
     } finally {
       setIsLoadingInvitations(false);
@@ -89,7 +94,7 @@ const AddBarberModal: React.FC<AddBarberModalProps> = ({
       console.error("Error sending invitation:", err);
       setError(
         err.response?.data?.message ||
-          "Failed to send invitation. Please try again."
+          "Failed to send invitation. Please try again.",
       );
     } finally {
       setIsLoading(false);
@@ -258,6 +263,7 @@ const AddBarberModal: React.FC<AddBarberModalProps> = ({
                     type="number"
                     value={commission}
                     onChange={(e) => setCommission(Number(e.target.value))}
+                    onFocus={(e) => e.target.select()}
                     className="w-full bg-[#201f1f] text-[#e5e2e1] py-3 pl-12 pr-12 rounded-xl focus:ring-2 focus:ring-[#f2ca50]/30 transition-all outline-none"
                     placeholder="60"
                   />
@@ -292,7 +298,9 @@ const AddBarberModal: React.FC<AddBarberModalProps> = ({
                   <span className="material-symbols-outlined text-5xl text-red-400">
                     error
                   </span>
-                  <p className="text-red-400 text-xs text-center">{invitationsError}</p>
+                  <p className="text-red-400 text-xs text-center">
+                    {invitationsError}
+                  </p>
                   <button
                     onClick={fetchInvitations}
                     className="px-4 py-2 bg-[#2a2a2a] text-[#f2ca50] text-xs font-bold rounded-lg hover:bg-[#353535] transition-colors"
@@ -328,21 +336,27 @@ const AddBarberModal: React.FC<AddBarberModalProps> = ({
                               day: "2-digit",
                               month: "short",
                               year: "numeric",
-                            }
+                            },
                           )}
                         </span>
-                        <div className="mt-1">{getStatusBadge(invitation.status)}</div>
+                        <div className="mt-1">
+                          {getStatusBadge(invitation.status)}
+                        </div>
                       </div>
                       {invitation.status === "PENDING" && (
                         <button
-                          onClick={() => handleCancelInvitation(invitation.token)}
+                          onClick={() =>
+                            handleCancelInvitation(invitation.token)
+                          }
                           disabled={cancelingToken === invitation.token}
                           title="Cancel invitation"
                           className="p-2 text-[#99907c] hover:text-red-400 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                         >
                           <span className="material-symbols-outlined">
                             {cancelingToken === invitation.token ? (
-                              <span className="animate-spin">progress_activity</span>
+                              <span className="animate-spin">
+                                progress_activity
+                              </span>
                             ) : (
                               "cancel"
                             )}
