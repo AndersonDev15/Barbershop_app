@@ -7,11 +7,13 @@ export default function BarberiaOnboardingPage() {
   const [shopName, setShopName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
+  const [department, setDepartment] = useState("");
+  const [city, setCity] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit() {
-    if (!shopName || !address || !phone) {
+    if (!shopName || !department || !city || !address || !phone) {
       setError("Please fill in all fields.");
       return;
     }
@@ -22,6 +24,8 @@ export default function BarberiaOnboardingPage() {
     try {
       const response = await api.post("/api/barbershop", {
         barberShopName: shopName,
+        department,
+        city,
         address,
         phone,
       });
@@ -106,6 +110,44 @@ export default function BarberiaOnboardingPage() {
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Department */}
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold uppercase tracking-widest text-on-surface-variant ml-1">
+                Department
+              </label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 text-sm">
+                  map
+                </span>
+                <input
+                  className="w-full bg-surface-container-lowest border-none rounded-full py-3.5 pl-11 pr-5 text-on-surface text-sm"
+                  placeholder="e.g. Cundinamarca"
+                  type="text"
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* City */}
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold uppercase tracking-widest text-on-surface-variant ml-1">
+                City
+              </label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 text-sm">
+                  location_city
+                </span>
+                <input
+                  className="w-full bg-surface-container-lowest border-none rounded-full py-3.5 pl-11 pr-5 text-on-surface text-sm"
+                  placeholder="e.g. Bogotá"
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
                 />
               </div>
             </div>
