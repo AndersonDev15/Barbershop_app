@@ -106,7 +106,7 @@ public class BarberShopImageService {
         if(file.isEmpty()){
             throw new ValidationException("El archivo esta vacio");
         }
-        List<String> allowedTypes = List.of("image/jpge","image/png");
+        List<String> allowedTypes = List.of("image/jpeg", "image/jpg", "image/png");
 
         if(!allowedTypes.contains(file.getContentType())){
             throw new ValidationException("Solo se permiten imágenes JPG y PNG");
