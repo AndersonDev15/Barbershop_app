@@ -2,6 +2,7 @@ package com.barber.project.infrastructure.sync.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,14 +14,17 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserSyncRequest {
 
-    @NotBlank(message = "userUuid es requerido")
+    
+
+    // DESPUÉS:
+    @NotNull(message = "userUuid es requerido")  // ← NotNull, no NotBlank
     private UUID userUuid;
 
     @NotBlank(message = "email es requerido")
     @Email(message = "email debe ser valido")
     private String email;
 
-    @NotBlank(message = "fistName es requerido")
+    @NotBlank(message = "firstName es requerido")
     private String firstName;
 
     @NotBlank(message = "lastName es requerido")
