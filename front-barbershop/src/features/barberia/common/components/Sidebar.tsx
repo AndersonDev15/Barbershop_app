@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../auth/authStore";
 import Avatar from "../../../../components/ui/Avatar";
-import api from "../../../../lib/api";
+
 const navItems = [
   { icon: "dashboard", label: "Dashboard", path: "/barberia/home" },
   { icon: "content_cut", label: "Barbers", path: "/barberia/barberos" },
@@ -27,15 +27,13 @@ export default function Sidebar({
   const navigate = useNavigate();
   const location = useLocation();
 
-  async function handleLogout() {
-    try {
-      await api.post("/logout");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
-      window.location.href = "/";
-    }
-  }
+  const handleLogout = () => {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `${import.meta.env.VITE_BFF_URL}/logout`;
+    document.body.appendChild(form);
+    form.submit();
+  };
 
   return (
     <>

@@ -9,7 +9,6 @@ import {
   getNotificationMeta,
   formatNotificationTime,
 } from "../../../../utils/notificationMapper";
-import api from "../../../../lib/api";
 
 export default function ClienteTopBar() {
   const [isNotifOpen, setIsNotifOpen] = useState(false);

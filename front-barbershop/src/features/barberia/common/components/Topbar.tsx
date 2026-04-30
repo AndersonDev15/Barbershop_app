@@ -43,15 +43,13 @@ export default function Topbar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  async function handleLogout() {
-    try {
-      await api.post("/logout");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
-      window.location.href = "/";
-    }
-  }
+  const handleLogout = () => {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `${import.meta.env.VITE_BFF_URL}/logout`;
+    document.body.appendChild(form);
+    form.submit();
+  };
   return (
     <>
       <header className="bg-[#131313]/80 backdrop-blur-xl h-20 w-full z-40 flex items-center justify-between px-4 md:px-8 font-['Inter'] text-sm border-b border-white/5">

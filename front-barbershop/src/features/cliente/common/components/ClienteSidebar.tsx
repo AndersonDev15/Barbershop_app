@@ -5,7 +5,6 @@ import { useAuthStore } from "../../../auth/authStore";
 export default function ClienteSidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
 
   const getInitials = (name: string) => {
@@ -16,6 +15,14 @@ export default function ClienteSidebar() {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleLogout = () => {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `${import.meta.env.VITE_BFF_URL}/logout`;
+    document.body.appendChild(form);
+    form.submit();
   };
 
   const displayName = user
@@ -101,7 +108,7 @@ export default function ClienteSidebar() {
 
         {/* Footer */}
         <button
-          onClick={() => logout()}
+          onClick={handleLogout}
           className="flex items-center gap-3 text-error/80 hover:text-error px-4 py-3 hover:bg-error-container/10 rounded-lg transition-all"
         >
           <span className="material-symbols-outlined">logout</span>

@@ -76,14 +76,12 @@ export default function BarberoSidebar({ onViewChange }: BarberoSidebarProps) {
     },
   ];
 
-  const handleLogout = async () => {
-    try {
-      await api.post("/logout");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
-      window.location.href = "/";
-    }
+  const handleLogout = () => {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `${import.meta.env.VITE_BFF_URL}/logout`;
+    document.body.appendChild(form);
+    form.submit();
   };
 
   return (
