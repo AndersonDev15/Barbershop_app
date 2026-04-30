@@ -98,12 +98,9 @@ public class SecurityConfig {
     @Bean
     public ServerLogoutSuccessHandler logoutSuccessHandler(
             ReactiveClientRegistrationRepository repository) {
-
         OidcClientInitiatedServerLogoutSuccessHandler handler =
                 new OidcClientInitiatedServerLogoutSuccessHandler(repository);
-
-        handler.setPostLogoutRedirectUri(frontendUrl + "/login");
-
+        handler.setPostLogoutRedirectUri(frontendUrl);
         return handler;
     }
 

@@ -37,11 +37,7 @@ spring:
             client-authentication-method: client_secret_basic
         provider:
           barberia-auth-server:
-            authorization-uri: ${AUTH_SERVER_PUBLIC_URL:http://127.0.0.1:9000}/oauth2/authorize
-            token-uri: ${AUTH_SERVER_URL:http://127.0.0.1:9000}/oauth2/token
-            jwk-set-uri: ${AUTH_SERVER_URL:http://127.0.0.1:9000}/oauth2/jwks
-            user-info-uri: ${AUTH_SERVER_URL:http://127.0.0.1:9000}/userinfo
-            end-session-uri: ${AUTH_SERVER_PUBLIC_URL:http://127.0.0.1:9000}/connect/logout
+            issuer-uri: ${AUTH_SERVER_PUBLIC_URL:http://127.0.0.1:9000}
             user-name-attribute: sub
 
   cloud:
