@@ -22,7 +22,7 @@ import java.util.Map;
 @Slf4j
 public class InternalApiKeyFilter extends OncePerRequestFilter {
 
-    private static final String API_KEY_HEADER = "X-API-Key";
+    private static final String API_KEY_HEADER = "X-API-Key"; 
 
     private final InternalApiProperties properties;
 
