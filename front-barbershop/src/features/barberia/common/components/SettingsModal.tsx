@@ -57,6 +57,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const [shopForm, setShopForm] = useState({
     barberShopName: "",
     address: "",
+    city: "",
+    department: "",
     barberShopPhone: "",
     firstName: "",
     lastName: "",
@@ -251,6 +253,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       const formData = {
         barberShopName: data.barberShopName ?? "",
         address: data.address ?? "",
+        city: data.city ?? "",
+        department: data.department ?? "",
         barberShopPhone: data.phone ?? "",
         firstName: data.given_name ?? "",
         lastName: data.family_name ?? "",
@@ -278,6 +282,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         barberShopName: shopForm.barberShopName,
         address: shopForm.address,
         barberShopPhone: shopForm.barberShopPhone,
+        city: shopForm.city,
+        department: shopForm.department,
       }),
       api.put("/api/users/me", {
         firstName: shopForm.firstName,
@@ -661,6 +667,35 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#d0c5af]">
                   location_on
                 </span>
+              </div>
+              <div className="space-y-2">
+                <label className="block text-[10px] uppercase tracking-widest text-[#f2ca50] font-bold ml-1">
+                  Department
+                </label>
+                <input
+                  className="w-full bg-[#201f1f] border-none rounded-full px-6 py-4 text-[#e5e2e1] focus:ring-2 focus:ring-[#f2ca50]/50 outline-none"
+                  type="text"
+                  value={shopForm.department}
+                  onChange={(e) =>
+                    setShopForm((prev) => ({
+                      ...prev,
+                      department: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-[10px] uppercase tracking-widest text-[#f2ca50] font-bold ml-1">
+                  City
+                </label>
+                <input
+                  className="w-full bg-[#201f1f] border-none rounded-full px-6 py-4 text-[#e5e2e1] focus:ring-2 focus:ring-[#f2ca50]/50 outline-none"
+                  type="text"
+                  value={shopForm.city}
+                  onChange={(e) =>
+                    setShopForm((prev) => ({ ...prev, city: e.target.value }))
+                  }
+                />
               </div>
             </div>
           </div>
