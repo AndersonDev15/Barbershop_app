@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserSyncRequest {
 
-    
+
 
     // DESPUÉS:
     @NotNull(message = "userUuid es requerido")  // ← NotNull, no NotBlank
