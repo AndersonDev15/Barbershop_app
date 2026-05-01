@@ -136,7 +136,8 @@ API REST de negocio organizada en módulos por dominio. Recibe el JWT del BFF vi
 
 ## Sincronización de Usuarios
 
-Cuando un usuario se registra o actualiza su perfil en el Auth Server, la Business API es notificada automáticamente mediante una llamada interna autenticada con API Key.
+Cuando un usuario se registra o actualiza su perfil en el Auth Server, la Business API es notificada automáticamente mediante una llamada interna autenticada con API Key, implementada con OpenFeign.
+El objetivo es mantener una réplica local en la Business API para evitar llamadas repetidas al Auth Server en cada operación de negocio.
 
 Adicionalmente existe un **job de reconciliación diaria** que garantiza consistencia entre ambas bases de datos.
 
