@@ -78,6 +78,8 @@ public class UserController {
         if (shop != null) {
             response.put("barberShopName", shop.get("barberShopName"));
             response.put("address",        shop.get("address"));
+            response.put("city",           shop.get("city"));
+            response.put("department",     shop.get("department"));
             response.put("phone",          shop.get("phone"));
             response.put("shopId",         shop.get("id"));
             response.put("status",         shop.get("status"));

@@ -19,9 +19,6 @@ public class BarberShopProfileUpdateRequest  {
 
     @Schema(description = "Dirección de la barbería", example = "Calle 123 #45-67")
     private String address;
-
-
-
     @Schema(description = "Teléfono de contacto de la barbería", example = "3009876543")
     private String barberShopPhone;
 
