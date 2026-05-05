@@ -1,13 +1,14 @@
-# =========================
-# 🔐 ENV
-# =========================
+
+# ENV
+
 .env
 .env.*
 **/.env
+/init.sql
 
-# =========================
-# 🟢 JAVA / SPRING
-# =========================
+
+# JAVA / SPRING
+
 **/target/
 **/*.log
 **/logs/
@@ -15,9 +16,9 @@
 # Maven
 **/.mvn/wrapper/maven-wrapper.jar
 
-# =========================
-# 🟣 FRONTEND
-# =========================
+
+# FRONTEND
+
 front-barbershop/node_modules/
 front-barbershop/dist/
 front-barbershop/build/
@@ -29,18 +30,18 @@ front-barbershop/npm-debug.log*
 front-barbershop/yarn-debug.log*
 front-barbershop/yarn-error.log*
 
-# =========================
-# 🟡 IDEs
-# =========================
+
+# IDEs
+
 .idea/
 .vscode/
 *.iml
 *.ipr
 *.iws
 
-# =========================
-# 🔵 STS / Eclipse
-# =========================
+
+# STS / Eclipse
+
 .apt_generated
 .classpath
 .factorypath
@@ -49,9 +50,9 @@ front-barbershop/yarn-error.log*
 .springBeans
 .sts4-cache
 
-# =========================
-# 🟠 NetBeans
-# =========================
+
+# NetBeans
+
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -59,9 +60,9 @@ front-barbershop/yarn-error.log*
 /.nb-gradle/
 build/
 
-# =========================
-# 🔴 OS
-# =========================
+
+# OS
+
 .DS_Store
 Thumbs.db
 *.swp
